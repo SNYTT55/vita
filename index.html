@@ -25,14 +25,14 @@
         .item-row { display: flex; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--accent-soft); cursor: pointer; }
         .item-info { flex: 1; min-width: 0; }
         .item-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
-        .item-name { font-size: 0.95rem; font-weight: bold; color: var(--text-main); }
-        .item-sub-text { font-size: 0.95rem; font-weight: bold; color: var(--primary); } /* 與品名樣式一致 */
+        .item-name { font-size: 0.95rem; font-weight: bold; color: var(--primary); }
+        .item-sub-text { font-size: 0.95rem; font-weight: bold; color: var(--text-main); } /* 與品名樣式一致 */
         .item-meta { font-size: 0.75rem; color: var(--text-sub); display: block; }
         
         .status-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; flex-shrink: 0; }
         .s-服用中 { background: var(--primary); color: white; }
         .s-庫存 { background: var(--accent-soft); color: var(--text-sub); }
-        .s-已吃完 { background: #eee; color: #aaa; text-decoration: line-through; }
+        .s-已吃完 { background: #eee; color: #aaa; }
 
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-end; }
         label { display: block; font-size: 0.65rem; margin-bottom: 3px; color: var(--text-sub); font-weight: bold; }
@@ -51,7 +51,7 @@
 <div class="header"><h1>VITAVAULT V5.7</h1></div>
 
 <nav class="nav-tabs">
-    <div class="tab-btn active" onclick="switchTab('home')">今日</div>
+    <div class="tab-btn active" onclick="switchTab('home')">管理</div>
     <div class="tab-btn" onclick="switchTab('stock')">庫存</div>
     <div class="tab-btn" onclick="switchTab('plan')">採買</div>
     <div class="tab-btn" onclick="switchTab('data')">數據</div>
@@ -60,9 +60,9 @@
 <div class="container">
     <div id="tab-home">
         <div class="card" style="border: 1.5px solid var(--primary); background: #FFFDFB;">
-            <div class="section-title">智能開啟導航</div>
+            <div class="section-title">智能導航</div>
             <div class="input-row">
-                <div style="flex:1"><label>模式</label>
+                <div style="flex:1"><label>項目</label>
                     <select id="dispMain" onchange="updateDispOptions()">
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
@@ -77,7 +77,7 @@
         <div class="card">
             <div class="section-title">快速入庫</div>
             <div class="input-row">
-                <div style="flex:7"><label>模式</label>
+                <div style="flex:7"><label>項目</label>
                     <select id="mainCat">
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
@@ -87,12 +87,12 @@
                 <div style="flex:3"><label style="text-align:right">包數</label><input type="number" id="packCount" value="1" style="text-align:right"></div>
             </div>
             <div class="input-row">
-                <div style="flex:4"><label>分類</label><input type="text" id="subCat" placeholder="如：眼睛"></div>
-                <div style="flex:6"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
+                <div style="flex:4"><label>類別</label><input type="text" id="subCat" placeholder="如：維他命/美白"></div>
+                <div style="flex:6"><label>品名</label><input type="text" id="name" placeholder="產品名稱"></div>
             </div>
             <div class="input-row">
-                <div style="flex:1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
-                <div style="flex:1"><label>頻率模式</label>
+                <div style="flex:1"><label>總數</label><input type="number" id="totalQty" value="60"></div>
+                <div style="flex:1"><label>頻率</label>
                     <select id="baseCycle">
                         <option value="daily">每日</option>
                         <option value="weekly">每週</option>
@@ -114,12 +114,12 @@
     </div>
 
     <div id="tab-stock" style="display:none;">
-        <div class="card"><div class="section-title">純庫存清單</div><div id="full-inventory" style="max-height:65vh; overflow-y:auto;"></div></div>
+        <div class="card"><div class="section-title">庫存清單</div><div id="full-inventory" style="max-height:65vh; overflow-y:auto;"></div></div>
     </div>
 
     <div id="tab-plan" style="display:none;">
         <div class="card">
-            <div class="section-title">分類斷貨死線查詢</div>
+            <div class="section-title">斷貨日期查詢</div>
             <div class="input-row">
                 <div style="flex:7"><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div>
                 <div style="flex:3"><button class="btn btn-sub" style="width:100%" onclick="renderAnalysis()">分析</button></div>
