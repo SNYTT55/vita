@@ -45,7 +45,8 @@
 
         /* 還原截圖中的排版比例 */
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .col-1 { flex: 1; }
+        .col-sub { flex: 3; }
+        .col-name { flex: 7; }
         .col-2 { flex: 2; }
         .col-3 { flex: 3; }
 
@@ -70,10 +71,8 @@
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V</h1></div>
-
 <nav class="nav-tabs">
-    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">今日服用</div>
+    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">今日管理</div>
     <div class="tab-btn" id="btn-stock" onclick="switchTab('stock')">庫存管理</div>
     <div class="tab-btn" id="btn-plan" onclick="switchTab('plan')">採買規劃</div>
     <div class="tab-btn" id="btn-data" onclick="switchTab('data')">數據管理</div>
@@ -115,8 +114,8 @@
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
             </div>
             <div class="input-row">
-                <div class="col-1"><label>分類</label><input type="text" id="subCat" placeholder="如：鐵劑"></div>
-                <div class="col-1"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
+                <div class="col-sub"><label>分類</label><input type="text" id="subCat" placeholder="如：鐵劑"></div>
+                <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
                 <div class="col-1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
