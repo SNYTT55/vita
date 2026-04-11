@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VitaVault V5.6.6</title>
+    <title>VitaVault V5.6.7</title>
     <style>
         :root {
             --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
@@ -43,12 +43,11 @@
         
         #modalOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center; }
         .modal-content { background:white; padding:25px; border-radius:12px; width:92%; max-width:450px; }
-        .timestamp { font-size: 10px; color: var(--text-sub); text-align: left; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V5.6.6</h1></div>
+<div class="header"><h1>VITAVAULT V5.6.7</h1></div>
 
 <nav class="nav-tabs">
     <div class="tab-btn active" onclick="switchTab('home')">今日</div>
@@ -87,18 +86,12 @@
                 <div style="flex:3"><label style="text-align:right">包數</label><input type="number" id="packCount" value="1" style="text-align:right"></div>
             </div>
             <div class="input-row">
-                <div style="flex:4"><label>分類</label><input type="text" id="subCat" placeholder="如：眼睛"></div>
+                <div style="flex:4"><label>分類</label><input type="text" id="subCat" placeholder="如：鐵劑"></div>
                 <div style="flex:6"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
                 <div style="flex:1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
-                <div style="flex:1.2"><label>頻率</label>
-                    <select id="baseCycle">
-                        <option value="daily">每日</option>
-                        <option value="weekly">每週</option>
-                    </select>
-                </div>
-                <div style="flex:0.8"><label>回數</label><input type="number" id="baseFreq" value="1"></div>
+                <div style="flex:1"><label>每日回數</label><input type="number" id="baseFreq" value="1"></div>
                 <div style="flex:1"><label>每回顆數</label><input type="number" id="baseDose" value="1"></div>
             </div>
             <div class="input-row">
@@ -133,7 +126,7 @@
     <div id="tab-data" style="display:none;">
         <div class="card">
             <div class="section-title">數據備份與還原</div>
-            <div id="lastUpdateText" class="timestamp">LAST RECORDED: ---</div>
+            <div id="lastUpdateText" class="timestamp" style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">LAST RECORDED: ---</div>
             <textarea id="dataBox" rows="6" style="font-size:11px; margin-bottom:10px; background:#f0f0f0;"></textarea>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <button class="btn btn-main" onclick="exportAndCopy()">導出複製</button>
@@ -141,7 +134,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="section-title">歷史紀錄 (已吃完)</div>
+            <div class="section-title">歷史紀錄</div>
             <div id="finished-list" style="max-height:200px; overflow-y:auto;"></div>
             <button class="btn" style="color:var(--danger); width:100%; margin-top:15px; font-size:0.75rem; border:1px solid #fee;" onclick="cleanFinished()">清空歷史紀錄</button>
         </div>
@@ -163,18 +156,18 @@
     });
 
     function save() {
-        const ts = new Date().toLocaleString();
         localStorage.setItem('vitaVault_db', JSON.stringify(db));
-        localStorage.setItem('vitaVault_lastUpdate', ts);
+        localStorage.setItem('vitaVault_lastUpdate', new Date().toLocaleString());
         renderAll();
     }
 
     function getDailyRate(item) {
         let freq = parseInt(item.freq) || 1;
         let dose = parseInt(item.dose) || 1;
-        let rate = item.cycle === 'weekly' ? (dose / 7) : (dose * freq);
+        let rate = freq * dose;
+        // 生理期邏輯：一個月只吃 7 天
         if (item.mainCat === '生理期') rate = rate * (7 / 30);
-        return rate > 0 ? rate : 1; // 防呆：確保不為 0 避免無限天數
+        return rate > 0 ? rate : 1;
     }
 
     function createItemElement(item) {
@@ -184,11 +177,8 @@
                         <span class="item-expiry">完成於: ${item.updatedAt}</span>
                     </div>`;
         }
-        
         const rate = getDailyRate(item);
         const daysLeft = Math.round(item.totalQty / rate);
-        
-        // 服用中顯示天數，庫存顯示未開啟
         const statusDisplay = item.status === '服用中' 
             ? `可吃 <b style="color:var(--primary)">${daysLeft}</b> 天` 
             : `<span style="color:var(--text-sub)">未開啟</span>`;
@@ -217,7 +207,6 @@
                 id: Date.now() + i, mainCat: document.getElementById('mainCat').value,
                 subCat: document.getElementById('subCat').value || '未分類', name: name,
                 totalQty: parseInt(document.getElementById('totalQty').value),
-                cycle: document.getElementById('baseCycle').value,
                 freq: parseInt(document.getElementById('baseFreq').value) || 1,
                 dose: parseInt(document.getElementById('baseDose').value) || 1,
                 expiry: exp, status: '庫存', updatedAt: new Date().toLocaleString()
@@ -244,24 +233,17 @@
                 <div style="border: 1px dashed var(--primary); padding:10px; border-radius:8px; background:#fff;">
                     ${createItemElement(item)}
                     <div class="input-row" style="margin-top:10px; padding:10px; background:#fdfdfd; border-radius:6px; border:1px solid #eee;">
-                        <div style="flex:1.2"><label>開啟頻率</label>
-                            <select id="tempCycle">
-                                <option value="daily" ${item.cycle==='daily'?'selected':''}>每日</option>
-                                <option value="weekly" ${item.cycle==='weekly'?'selected':''}>每週</option>
-                            </select>
-                        </div>
-                        <div style="flex:0.8"><label>回數</label><input type="number" id="tempFreq" value="${item.freq || 1}"></div>
-                        <div style="flex:1"><label>每回顆數</label><input type="number" id="tempDose" value="${item.dose}"></div>
+                        <div style="flex:1"><label>每日回數</label><input type="number" id="tempFreq" value="${item.freq || 1}"></div>
+                        <div style="flex:1"><label>每回顆數</label><input type="number" id="tempDose" value="${item.dose || 1}"></div>
                     </div>
                     <button class="btn btn-main" style="margin-top:5px; padding:10px;" onclick="quickOpen(${item.id})">確認開啟此瓶</button>
                 </div>`;
-        } else { res.innerHTML = '<div class="item-meta" style="font-size:0.75rem; color:#aaa; text-align:center;">目前無庫存</div>'; }
+        } else { res.innerHTML = '<div style="font-size:0.75rem; color:#aaa; text-align:center; padding:10px;">目前無庫存</div>'; }
     }
 
     function quickOpen(id) {
         const i = db.find(x => x.id === id);
         i.status = '服用中';
-        i.cycle = document.getElementById('tempCycle').value;
         i.freq = parseInt(document.getElementById('tempFreq').value) || 1;
         i.dose = parseInt(document.getElementById('tempDose').value) || 1;
         i.updatedAt = new Date().toLocaleString();
@@ -289,11 +271,10 @@
             const daysLeft = Math.floor(data.totalQty / data.dailyRate);
             if(daysLeft < targetDays) {
                 const gap = Math.ceil(data.dailyRate * targetDays) - data.totalQty;
-                out += `<div style="padding:10px 0; border-bottom:1px solid var(--accent-soft);"><div style="display:flex; justify-content:space-between;"><b>${sub}</b><span class="status-pill s-服用中">補 ${gap} 顆</span></div><div class="item-meta" style="font-size:0.75rem; color:var(--text-sub);">剩 ${data.totalQty} 顆 / 可撐 ${daysLeft} 天</div></div>`;
+                out += `<div style="padding:10px 0; border-bottom:1px solid var(--accent-soft);"><div style="display:flex; justify-content:space-between;"><b>${sub}</b><span class="status-pill s-服用中">補 ${gap} 顆</span></div><div style="font-size:0.75rem; color:var(--text-sub);">剩 ${data.totalQty} 顆 / 可撐 ${daysLeft} 天</div></div>`;
             }
         }
-        const targetId = isTargetMode ? 'deadline-result' : 'plan-analysis';
-        document.getElementById(targetId).innerHTML = out || `<div class="item-meta" style="color:var(--safe); font-size:0.75rem; text-align:center;">✅ 庫存充足</div>`;
+        document.getElementById(isTargetMode ? 'deadline-result' : 'plan-analysis').innerHTML = out || `<div style="color:var(--safe); font-size:0.75rem; text-align:center; padding:10px;">✅ 庫存充足</div>`;
     }
 
     function renderAll() {
@@ -317,13 +298,7 @@
                 <option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option>
             </select>
             <div class="input-row">
-                <div style="flex:1.2"><label>頻率</label>
-                    <select id="upCycle">
-                        <option value="daily" ${i.cycle==='daily'?'selected':''}>每日</option>
-                        <option value="weekly" ${i.cycle==='weekly'?'selected':''}>每週</option>
-                    </select>
-                </div>
-                <div style="flex:0.8"><label>回數</label><input type="number" id="upFreq" value="${i.freq || 1}"></div>
+                <div style="flex:1"><label>每日回數</label><input type="number" id="upFreq" value="${i.freq || 1}"></div>
                 <div style="flex:1"><label>每回顆數</label><input type="number" id="upDose" value="${i.dose || 1}"></div>
             </div>
             <label>目前總餘量 (顆)</label><input type="number" id="upQty" value="${i.totalQty}">
@@ -338,7 +313,6 @@
     function updateItem(id) {
         const i = db.find(x => x.id === id);
         i.status = document.getElementById('upStatus').value;
-        i.cycle = document.getElementById('upCycle').value;
         i.freq = parseInt(document.getElementById('upFreq').value) || 1;
         i.dose = parseInt(document.getElementById('upDose').value) || 1;
         i.totalQty = parseInt(document.getElementById('upQty').value);
