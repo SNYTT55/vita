@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VitaVault V5.7.2</title>
+    <title>VitaVault V5.7.3</title>
     <style>
         :root {
-            /* 橄欖綠 + 磚紅 低飽和色調 */
             --primary: #CC7722; 
             --bg: #F9F8F6; 
             --card: #ffffff;
@@ -18,59 +17,44 @@
         }
         * { box-sizing: border-box; font-family: -apple-system, "Noto Sans TC", sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
-        
-        /* Header & Nav */
         .header { background: #fff; padding: 20px; border-bottom: 1px solid var(--accent-soft); text-align: center; }
         .header h1 { margin: 0; font-size: 1rem; letter-spacing: 4px; color: var(--primary); font-weight: 300; text-transform: uppercase; }
         .nav-tabs { display: flex; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--accent-soft); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .tab-btn { flex: 1; padding: 14px 5px; text-align: center; font-size: 0.8rem; color: var(--text-sub); cursor: pointer; transition: 0.3s; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
-        
         .container { max-width: 600px; margin: auto; padding: 15px; }
         .card { background: var(--card); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--accent-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         .section-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 15px; color: var(--primary); border-left: 3px solid var(--primary); padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* List Items */
         .item-row { display: flex; flex-direction: column; padding: 15px 0; border-bottom: 1px solid #F5F5F5; cursor: pointer; }
         .item-row:last-child { border-bottom: none; }
         .item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
         .item-name { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
-        .item-sub-label { font-size: 0.7rem; font-weight: bold; color: var(--primary); background: #FFF5EB; padding: 2px 8px; border-radius: 4px; }
+        .item-sub-label { font-size: 0.7rem; font-weight: bold; color: var(--primary); padding: 2px 8px; border-radius: 4px; }
         .item-meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
         .item-data { font-size: 0.8rem; color: var(--text-main); }
         .item-expiry { font-size: 0.75rem; color: var(--text-sub); }
-        
-        /* Status Badges */
         .status-pill { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; }
         .s-服用中 { background: var(--primary); color: white; }
         .s-庫存 { background: #EEECE8; color: #777; }
         .s-已吃完 { background: #F0F0F0; color: #BBB; text-decoration: line-through; }
-
-        /* Form Inputs */
         .input-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-end; }
         label { display: block; font-size: 0.7rem; margin-bottom: 5px; color: var(--text-sub); font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #EAEAEA; font-size: 14px; background: #FAFAFA; transition: 0.2s; -webkit-appearance: none; }
-        input:focus { border-color: var(--primary); outline: none; background: #FFF; }
-        
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #EAEAEA; font-size: 14px; background: #FAFAFA; }
         .btn { border-radius: 10px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
         .btn-main { background: var(--primary); color: white; padding: 16px; width: 100%; box-shadow: 0 4px 10px rgba(204, 119, 34, 0.2); }
         .btn-sub { background: white; border: 1px solid var(--accent-soft); color: var(--text-sub); padding: 12px; }
-        
         #modalOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:2000; justify-content:center; align-items:center; backdrop-filter: blur(2px); }
         .modal-content { background:white; padding:25px; border-radius:16px; width:90%; max-width:400px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        
-        /* Utilities */
         .timestamp { font-size: 10px; color: #BBB; font-weight: 300; letter-spacing: 0.5px; }
         #dataBox { font-family: monospace; color: #999; border: 1px dashed #DDD; }
     </style>
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V5.7.2</h1></div>
+<div class="header"><h1>VITAVAULT V5.7.3</h1></div>
 
 <nav class="nav-tabs">
-    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">今日服用</div>
+    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">管理中心</div>
     <div class="tab-btn" id="btn-stock" onclick="switchTab('stock')">所有庫存</div>
     <div class="tab-btn" id="btn-plan" onclick="switchTab('plan')">採買規劃</div>
     <div class="tab-btn" id="btn-data" onclick="switchTab('data')">數據管理</div>
@@ -79,7 +63,7 @@
 <div class="container">
     <div id="tab-home">
         <div class="card" style="border: 1.5px solid var(--primary); background: #FFFDFB;">
-            <div class="section-title">智能導航開瓶</div>
+            <div class="section-title">智能導航</div>
             <div class="input-row">
                 <div style="flex:1"><label>模式</label>
                     <select id="dispMain" onchange="updateDispOptions()">
@@ -94,7 +78,7 @@
         </div>
 
         <div class="card">
-            <div class="section-title">快速入庫備品</div>
+            <div class="section-title">快速入庫</div>
             <div class="input-row">
                 <div style="flex:7"><label>模式</label>
                     <select id="mainCat">
@@ -110,7 +94,7 @@
                 <div style="flex:1"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
-                <div style="flex:1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
+                <div style="flex:1"><label>總顆粒數</label><input type="number" id="totalQty" value="60"></div>
                 <div style="flex:1"><label>每日回數</label><input type="text" id="baseFreq" value="1"></div>
                 <div style="flex:1"><label>每回顆數</label><input type="text" id="baseDose" value="1"></div>
             </div>
@@ -122,14 +106,14 @@
         </div>
         
         <div class="card">
-            <div class="section-title">目前正在服用</div>
+            <div class="section-title">目前服用中</div>
             <div id="ongoing-list"></div>
         </div>
     </div>
 
     <div id="tab-stock" style="display:none;">
         <div class="card">
-            <div class="section-title">備用庫存清單</div>
+            <div class="section-title">備用庫存</div>
             <div id="full-inventory" style="max-height:70vh; overflow-y:auto;"></div>
         </div>
     </div>
@@ -144,24 +128,20 @@
             <div id="deadline-result"></div>
         </div>
         <div class="card">
-            <div class="section-title">180 天補貨雷達</div>
+            <div class="section-title">90天補貨雷達</div>
             <div id="plan-analysis"></div>
         </div>
     </div>
 
     <div id="tab-data" style="display:none;">
         <div class="card">
-            <div class="section-title">
-                數據備份
-                <span id="lastUpdateText" class="timestamp">最後存檔：---</span>
-            </div>
+            <div class="section-title">數據備份 <span id="lastUpdateText" class="timestamp">最後存檔：---</span></div>
             <textarea id="dataBox" rows="6" placeholder="此處顯示 JSON 數據..."></textarea>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
                 <button class="btn btn-main" onclick="exportAndCopy()">導出複製</button>
                 <button class="btn btn-sub" onclick="importData()">導入數據</button>
             </div>
         </div>
-        
         <div class="card">
             <div class="section-title">歷史完食紀錄</div>
             <div id="finished-list" style="max-height:300px; overflow-y:auto;"></div>
@@ -175,7 +155,6 @@
 <script>
     let db = JSON.parse(localStorage.getItem('vitaVault_db') || '[]');
 
-    // 自動補斜線邏輯
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('date-input')) {
             let val = e.target.value.replace(/\D/g, '').substring(0, 8);
@@ -191,13 +170,17 @@
         renderAll();
     }
 
-    // 核心邏輯：處理 2-4 這種字串
     function getDailyRate(item) {
         let freq = parseFloat(item.freq) || 1;
-        let dose = parseFloat(item.dose) || 1; // parseFloat 會自動抓取字串開頭的數字
+        let dose = parseFloat(item.dose) || 1;
         let rate = freq * dose;
         if (item.mainCat === '生理期') rate = rate * (7 / 30);
         return rate > 0 ? rate : 1;
+    }
+
+    // 核心功能：效期優先排序
+    function sortByExpiry(list) {
+        return list.sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
     }
 
     function createItemElement(item) {
@@ -207,13 +190,10 @@
         
         const rate = getDailyRate(item);
         const daysLeft = Math.round(item.totalQty / rate);
-        
-        // 預計吃完日期計算
         const finishDate = new Date();
         finishDate.setDate(finishDate.getDate() + daysLeft);
         const dateStr = `${finishDate.getMonth()+1}/${finishDate.getDate()}`;
 
-        // 效期警示
         const expDate = new Date(item.expiry);
         const diffDays = (expDate - new Date()) / (1000 * 60 * 60 * 24);
         const expStyle = diffDays < 90 ? 'color:var(--danger); font-weight:bold;' : '';
@@ -244,17 +224,12 @@
         const count = parseInt(document.getElementById('packCount').value) || 1;
         for(let i=0; i<count; i++) {
             db.push({
-                id: Date.now() + i, 
-                mainCat: document.getElementById('mainCat').value,
-                subCat: document.getElementById('subCat').value || '未分類', 
-                name: name,
+                id: Date.now() + i, mainCat: document.getElementById('mainCat').value,
+                subCat: document.getElementById('subCat').value || '未分類', name: name,
                 totalQty: parseInt(document.getElementById('totalQty').value),
                 freq: document.getElementById('baseFreq').value || "1",
                 dose: document.getElementById('baseDose').value || "1",
-                expiry: exp, 
-                buyDate: buy, 
-                status: '庫存', 
-                updatedAt: new Date().toLocaleString()
+                expiry: exp, buyDate: buy, status: '庫存', updatedAt: new Date().toLocaleString()
             });
         }
         save(); alert("入庫成功"); document.getElementById('name').value = '';
@@ -272,16 +247,7 @@
         const mode = document.getElementById('dispMain').value;
         const sub = document.getElementById('dispSub').value;
         const res = document.getElementById('disp-result');
-        
-        // 核心排序：效期 > 購買日 > ID
-        const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存')
-            .sort((a, b) => {
-                const dateA = new Date(a.expiry); const dateB = new Date(b.expiry);
-                if (dateA - dateB !== 0) return dateA - dateB;
-                const buyA = new Date(a.buyDate || 0); const buyB = new Date(b.buyDate || 0);
-                if (buyA - buyB !== 0) return buyA - buyB;
-                return a.id - b.id;
-            })[0];
+        const item = sortByExpiry(db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存'))[0];
 
         if(item) {
             res.innerHTML = `
@@ -309,7 +275,7 @@
         const checkVal = document.getElementById('checkDate').value;
         const isTargetMode = checkVal.length === 10;
         const today = new Date(); today.setHours(0,0,0,0);
-        const targetDays = isTargetMode ? Math.ceil((new Date(checkVal) - today) / 86400000) : 180;
+        const targetDays = isTargetMode ? Math.ceil((new Date(checkVal) - today) / 86400000) : 90; // 改為 90 天
         if(targetDays <= 0 && isTargetMode) return;
 
         const subSummary = {};
@@ -333,9 +299,9 @@
     }
 
     function renderAll() {
-        document.getElementById('ongoing-list').innerHTML = db.filter(i => i.status === '服用中').map(i => createItemElement(i)).join('');
-        document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').map(i => createItemElement(i)).join('');
-        document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').map(i => createItemElement(i)).join('');
+        document.getElementById('ongoing-list').innerHTML = sortByExpiry(db.filter(i => i.status === '服用中')).map(i => createItemElement(i)).join('');
+        document.getElementById('full-inventory').innerHTML = sortByExpiry(db.filter(i => i.status === '庫存')).map(i => createItemElement(i)).join('');
+        document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').reverse().map(i => createItemElement(i)).join('');
         document.getElementById('lastUpdateText').innerText = "最後存檔：" + (localStorage.getItem('vitaVault_lastUpdate') || "---");
         updateDispOptions(); 
         renderAnalysis();
@@ -368,29 +334,23 @@
         save(); closeModal();
     }
 
-    function deleteItem(id) { if(confirm("確定刪除此資料？此動作無法復原。")) { db = db.filter(i => i.id !== id); save(); closeModal(); } }
+    function deleteItem(id) { if(confirm("確定刪除此資料？")) { db = db.filter(i => i.id !== id); save(); closeModal(); } }
     function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
-    
     function switchTab(t) {
         ['home', 'stock', 'plan', 'data'].forEach(x => document.getElementById('tab-'+x).style.display = x===t?'block':'none');
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-'+t).classList.add('active');
         renderAll();
     }
-
     function exportAndCopy() {
         const box = document.getElementById('dataBox'); box.value = JSON.stringify(db); box.select();
-        navigator.clipboard.writeText(box.value).then(() => alert("數據已複製到剪貼簿，請妥善保存於備忘錄中。"));
+        navigator.clipboard.writeText(box.value).then(() => alert("數據已複製到剪貼簿。"));
     }
-
     function importData() {
         const input = document.getElementById('dataBox').value.trim();
-        if(!input) return alert("請先貼入數據");
-        try { db = JSON.parse(input); save(); alert("數據導入成功！"); } catch(e) { alert("導入失敗，請檢查格式是否正確。"); }
+        try { db = JSON.parse(input); save(); alert("導入成功！"); } catch(e) { alert("格式錯誤。"); }
     }
-
-    function cleanFinished() { if(confirm("確定要永久清空歷史紀錄嗎？")) { db = db.filter(i => i.status !== '已吃完'); save(); } }
-    
+    function cleanFinished() { if(confirm("永久清空歷史紀錄？")) { db = db.filter(i => i.status !== '已吃完'); save(); } }
     window.onload = renderAll;
 </script>
 </body>
