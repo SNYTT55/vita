@@ -3,50 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VitaVault V4.9.2</title>
+    <title>VitaVault V4.9.5</title>
     <style>
         :root {
             --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
             --text-main: #3C3C3C; --text-sub: #8C8C8C; --accent-soft: #EAE7E2;
-            --danger: #BC4A3C; --safe: #6B8E23; --timestamp: #9A7B4F;
+            --danger: #BC4A3C; --safe: #6B8E23; --ts-color: #5D5D5D;
         }
-        * { box-sizing: border-box; font-family: "PingFang TC", sans-serif; }
+        * { box-sizing: border-box; font-family: "PingFang TC", "Heiti TC", sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding-bottom: 80px; }
         .header { background: #fff; padding: 20px; border-bottom: 1px solid var(--accent-soft); text-align: center; }
         .header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 3px; color: var(--primary); font-weight: 300; }
         .nav-tabs { display: flex; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--accent-soft); }
         .tab-btn { flex: 1; padding: 12px 5px; text-align: center; font-size: 0.75rem; color: var(--text-sub); cursor: pointer; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
+        
         .container { max-width: 600px; margin: auto; padding: 15px; }
-        .card { background: var(--card); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--accent-soft); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .card { background: var(--card); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--accent-soft); }
         .section-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 12px; color: var(--primary); border-left: 3px solid var(--primary); padding-left: 8px; }
         
-        /* 比例與輸入設定 */
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-end; }
-        .flex-4 { flex: 4; } .flex-6 { flex: 6; } .flex-3 { flex: 3; } .flex-7 { flex: 7; } .flex-1 { flex: 1; }
+        .flex-4 { flex: 4; } .flex-6 { flex: 6; } .flex-1 { flex: 1; } .flex-7 { flex: 7; } .flex-3 { flex: 3; }
         
         label { display: block; font-size: 0.65rem; margin-bottom: 3px; color: var(--text-sub); font-weight: bold; }
         input, select, textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--accent-soft); font-size: 14px; background: #fafafa; }
-        .btn { width: 100%; padding: 14px; border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
-        .btn-main { background: var(--primary); color: white; margin-top: 10px; }
-        .btn-outline { background: white; border: 1px solid var(--accent-soft); color: var(--text-sub); }
         
-        /* 列表樣式 */
-        .item-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--accent-soft); }
-        .item-meta { font-size: 0.7rem; color: var(--text-sub); line-height: 1.5; }
-        .ts-tag { color: var(--timestamp); font-weight: bold; font-size: 0.65rem; }
+        .btn { border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; padding: 14px; width: 100%; }
+        .btn-sub { background: white; border: 1px solid var(--accent-soft); color: var(--text-sub); padding: 10px; }
+        
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--accent-soft); }
+        .item-meta { font-size: 0.7rem; color: var(--text-sub); }
         .status-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 8px; }
         .s-open { background: var(--primary); color: white; }
         .s-stock { background: var(--accent-soft); color: var(--text-sub); }
-        
-        /* Modal */
+
         #modalOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center; }
-        .modal-content { background:white; padding:25px; border-radius:12px; width:90%; max-width:450px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background:white; padding:25px; border-radius:12px; width:90%; max-width:450px; }
+        
+        /* 修正編輯視窗按鈕佈局 */
+        .modal-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 20px; }
+        .delete-link { display: block; text-align: center; margin-top: 15px; font-size: 0.7rem; color: var(--danger); text-decoration: underline; cursor: pointer; }
+        
+        .ts-display { font-family: monospace; font-size: 0.75rem; color: var(--ts-color); background: #eee; padding: 8px; border-radius: 4px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V4.9.2</h1></div>
+<div class="header"><h1>VITAVAULT V4.9.5</h1></div>
 
 <nav class="nav-tabs">
     <div class="tab-btn active" onclick="switchTab('home')">今日管理</div>
@@ -60,8 +64,7 @@
         <div class="card" style="border: 2px solid var(--primary); background: #FFFDFB;">
             <div class="section-title">智能開啟導航</div>
             <div class="input-row">
-                <div class="flex-1">
-                    <label>時間模式</label>
+                <div class="flex-1"><label>時間模式</label>
                     <select id="dispMain" onchange="updateDispOptions()">
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
@@ -78,16 +81,16 @@
             <div class="input-row">
                 <div class="flex-7"><label>時間模式</label>
                     <select id="mainCat">
-                        <option value="基礎營養">基礎營養 (每天)</option>
-                        <option value="生理期">生理期 (週期性)</option>
-                        <option value="體態控制">體態控制 (每天)</option>
+                        <option value="基礎營養">基礎營養</option>
+                        <option value="生理期">生理期</option>
+                        <option value="體態控制">體態控制</option>
                     </select>
                 </div>
                 <div class="flex-3"><label style="text-align:right">購入包數</label><input type="number" id="packCount" value="1" style="text-align:right"></div>
             </div>
             <div class="input-row">
                 <div class="flex-4"><label>功能分類</label><input type="text" id="subCat" placeholder="美白"></div>
-                <div class="flex-6"><label>品項名稱</label><input type="text" id="name" placeholder="DHC B群"></div>
+                <div class="flex-6"><label>品項名稱</label><input type="text" id="name" placeholder="品名"></div>
             </div>
             <div class="input-row">
                 <div class="flex-1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
@@ -104,34 +107,36 @@
     </div>
 
     <div id="tab-stock" style="display:none;">
-        <div class="card"><div class="section-title">全庫存細節</div><div id="full-inventory"></div></div>
+        <div class="card"><div class="section-title">全庫存細節 (共 <span id="itemCount">0</span> 筆)</div><div id="full-inventory" style="max-height:60vh; overflow-y:auto;"></div></div>
     </div>
 
     <div id="tab-plan" style="display:none;">
         <div class="card">
-            <div class="section-title">日期死線查詢</div>
+            <div class="section-title">斷糧死線預估</div>
             <div class="input-row">
-                <div class="flex-7"><label>預計日期</label><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div>
-                <div class="flex-3"><button class="btn btn-main" style="margin:0; padding:10px;" onclick="renderAnalysis()">查詢</button></div>
+                <div class="flex-7"><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div>
+                <div class="flex-3"><button class="btn btn-sub" style="width:100%" onclick="renderAnalysis()">查詢</button></div>
             </div>
-            <div id="deadline-result" style="margin-top:15px;"></div>
+            <div id="deadline-result"></div>
         </div>
-        <div class="card"><div class="section-title">180 天斷糧預警</div><div id="plan-analysis"></div></div>
+        <div class="card"><div class="section-title">180 天補貨雷達</div><div id="plan-analysis"></div></div>
     </div>
 
     <div id="tab-data" style="display:none;">
         <div class="card">
-            <div class="section-title">數據備份</div>
-            <textarea id="dataBox" rows="6"></textarea>
-            <div class="input-row" style="margin-top:10px;">
-                <button class="btn btn-main flex-1" onclick="exportData()">導出</button>
-                <button class="btn btn-outline flex-1" onclick="importData()">還原</button>
+            <div class="section-title">本地檔案資訊</div>
+            <div class="ts-display" id="lastSavedTs">尚未存檔</div>
+            <label>原始數據 (JSON 格式)</label>
+            <textarea id="dataBox" rows="8" style="font-size:10px;"></textarea>
+            <div class="modal-actions">
+                <button class="btn btn-main" onclick="exportAndCopy()">導出並自動複製</button>
+                <button class="btn btn-sub" onclick="importData()">還原數據</button>
             </div>
         </div>
         <div class="card">
-            <div class="section-title">歷史紀錄 (已吃完)</div>
-            <div id="finished-list" style="max-height:200px; overflow-y:auto;"></div>
-            <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger); margin-top:10px;" onclick="cleanFinished()">清空歷史</button>
+            <div class="section-title">歷史清單</div>
+            <div id="finished-list" style="max-height:150px; overflow-y:auto;"></div>
+            <button class="btn" style="color:var(--danger); width:100%; margin-top:10px; font-size:0.75rem;" onclick="cleanFinished()">清空歷史錄</button>
         </div>
     </div>
 </div>
@@ -139,8 +144,20 @@
 <div id="modalOverlay"><div class="modal-content" id="modalUI"></div></div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('vitaVault_v492') || '[]');
+    // 獨立儲存最後修改時間
+    let db = JSON.parse(localStorage.getItem('vitaVault_db') || '[]');
+    let lastTs = localStorage.getItem('vitaVault_ts') || '無紀錄';
 
+    function save() {
+        const now = new Date().toLocaleString();
+        localStorage.setItem('vitaVault_db', JSON.stringify(db));
+        localStorage.setItem('vitaVault_ts', now);
+        lastTs = now;
+        document.getElementById('lastSavedTs').innerText = "最後存取時間：" + now;
+        renderAll();
+    }
+
+    // 自動格式化日期
     function autoFormatDate(e) {
         let v = e.target.value.replace(/\D/g, '').substring(0, 8);
         if (v.length > 4 && v.length <= 6) v = v.substring(0, 4) + '/' + v.substring(4);
@@ -152,20 +169,17 @@
         document.querySelectorAll('.date-input').forEach(el => {
             el.addEventListener('keyup', autoFormatDate);
             if(el.id === 'buyDate' && !el.value) {
-                const now = new Date();
-                el.value = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+                const d = new Date();
+                el.value = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
             }
         });
     }
 
-    function save() { localStorage.setItem('vitaVault_v492', JSON.stringify(db)); renderAll(); }
-
     function batchAdd() {
         const name = document.getElementById('name').value;
         const exp = document.getElementById('expiry').value;
-        if(!name || exp.length < 10) return alert("資訊不完整");
+        if(!name || exp.length < 10) return alert("資訊不全");
         const count = parseInt(document.getElementById('packCount').value) || 1;
-        const nowTs = new Date().toLocaleString();
         for(let i=0; i<count; i++) {
             db.push({
                 id: Date.now() + i,
@@ -178,7 +192,7 @@
                 expiry: exp,
                 buyDate: document.getElementById('buyDate').value,
                 status: '庫存',
-                updatedAt: nowTs
+                updatedAt: new Date().toLocaleString()
             });
         }
         save();
@@ -186,25 +200,20 @@
 
     function renderAll() {
         renderOngoing(); renderInventory(); renderAnalysis(); renderFinished(); updateDispOptions(); initDateInputs();
+        document.getElementById('itemCount').innerText = db.filter(i => i.status !== '已吃完').length;
+        document.getElementById('lastSavedTs').innerText = "最後存取時間：" + lastTs;
     }
 
     function renderOngoing() {
         const list = document.getElementById('ongoing-list');
-        list.innerHTML = '<div class="item-meta" style="margin:10px 0;">服用中清單 (點擊盤點)</div>';
+        list.innerHTML = '<div class="item-meta" style="margin:10px 0;">服用中</div>';
         db.filter(i => i.status === '服用中').forEach(item => {
             const daily = item.mainCat === '生理期' ? (item.dose * item.freq * 7 / 30) : (item.dose * item.freq);
             const daysLeft = Math.round(item.totalQty / daily);
             list.innerHTML += `<div class="card" onclick="openEdit(${item.id})">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                        <b>${item.name}</b>
-                        <div class="ts-tag">📅 上次盤點: ${item.updatedAt}</div>
-                    </div>
-                    <span class="status-pill s-open">OPEN</span>
-                </div>
-                <div class="item-meta" style="margin-top:8px;">
-                    ${item.subCat} | 預估餘 ${daysLeft} 天 | 效期: ${item.expiry}
-                </div>
+                <div style="display:flex; justify-content:space-between"><b>${item.name}</b><span class="status-pill s-open">OPEN</span></div>
+                <div class="item-meta">${item.subCat} | 餘 ${daysLeft} 天 | 效期: ${item.expiry}</div>
+                <div class="item-meta" style="color:var(--primary); font-size:0.6rem; margin-top:4px;">盤點日期: ${item.updatedAt}</div>
             </div>`;
         });
     }
@@ -214,14 +223,7 @@
         list.innerHTML = '';
         db.filter(i => i.status !== '已吃完').sort((a,b) => new Date(a.expiry) - new Date(b.expiry)).forEach(item => {
             list.innerHTML += `<div class="item-row" onclick="openEdit(${item.id})">
-                <div style="flex:1">
-                    <div style="display:flex; align-items:center;">
-                        <b>${item.name}</b>
-                        <span class="status-pill ${item.status==='服用中'?'s-open':'s-stock'}">${item.status}</span>
-                    </div>
-                    <div class="item-meta">${item.subCat} | 效期: ${item.expiry} | 餘 ${item.totalQty}顆</div>
-                    <div class="item-meta ts-tag">最後修改: ${item.updatedAt}</div>
-                </div>
+                <div><b>${item.name}</b><span class="status-pill ${item.status==='服用中'?'s-open':'s-stock'}">${item.status}</span><div class="item-meta">${item.subCat} | 餘 ${item.totalQty}顆 | 效期 ${item.expiry}</div></div>
             </div>`;
         });
     }
@@ -234,23 +236,14 @@
             const days = Math.max(0, (target - new Date()) / 86400000);
             const sum = {};
             db.filter(i => i.status !== '已吃完').forEach(i => {
-                if(!sum[i.name]) sum[i.name] = { qty: 0, daily: (i.mainCat === '生理期' ? i.dose*i.freq*7/30 : i.dose*i.freq) };
+                const daily = (i.mainCat === '生理期' ? i.dose*i.freq*7/30 : i.dose*i.freq);
+                if(!sum[i.name]) sum[i.name] = { qty: 0, daily: daily };
                 sum[i.name].qty += i.totalQty;
             });
             let out = '';
             for(let n in sum) if(sum[n].qty/sum[n].daily < days) out += `<div class="item-meta" style="color:var(--danger)">⚠️ ${n} 撐不到該日期</div>`;
             resDiv.innerHTML = out || '<div class="item-meta" style="color:var(--safe)">✅ 庫存充足</div>';
         }
-
-        const planDiv = document.getElementById('plan-analysis');
-        planDiv.innerHTML = '';
-        const grp = {};
-        db.filter(i => i.status !== '已吃完').forEach(i => {
-            if(!grp[i.subCat]) grp[i.subCat] = 0;
-            const daily = i.mainCat === '生理期' ? (i.dose*i.freq*7/30) : (i.dose*i.freq);
-            grp[i.subCat] += (i.totalQty / daily);
-        });
-        for(let s in grp) planDiv.innerHTML += `<div class="item-row"><div><b>${s}</b><div class="item-meta">支撐約 ${Math.round(grp[s])} 天</div></div><div style="color:${grp[s]<180?'var(--danger)':'var(--safe)'}; font-weight:bold;">${grp[s]<180?'⚠️ 補貨':'OK'}</div></div>`;
     }
 
     function updateDispOptions() {
@@ -266,11 +259,10 @@
         const resDiv = document.getElementById('disp-result');
         const rec = db.filter(i => i.status === '庫存' && i.mainCat === mode && i.subCat === sub).sort((a,b) => new Date(a.expiry) - new Date(b.expiry))[0];
         if(rec) {
-            resDiv.innerHTML = `<div style="margin-bottom:10px;"><span style="font-weight:bold; color:var(--primary);">推薦：${rec.name}</span></div>
-                <div class="input-row"><div class="flex-1"><label>每次顆數</label><input type="number" id="newDose" value="${rec.dose}"></div>
-                <div class="flex-1"><label>每日次數</label><input type="number" id="newFreq" value="${rec.freq}"></div></div>
-                <button class="btn btn-main" onclick="confirmDispatch(${rec.id})">確認開啟這包</button>`;
-        } else { resDiv.innerHTML = '<div class="item-meta">目前分類無儲備。</div>'; }
+            resDiv.innerHTML = `<div><b>推薦：${rec.name}</b></div>
+                <div class="input-row"><div class="flex-1"><label>每次</label><input type="number" id="newDose" value="${rec.dose}"></div><div class="flex-1"><label>每日</label><input type="number" id="newFreq" value="${rec.freq}"></div></div>
+                <button class="btn btn-main" onclick="confirmDispatch(${rec.id})">確認開啟</button>`;
+        } else { resDiv.innerHTML = '<div class="item-meta">無待開庫存</div>'; }
     }
 
     function confirmDispatch(id) {
@@ -280,43 +272,53 @@
         item.status = '服用中'; item.updatedAt = new Date().toLocaleString(); save();
     }
 
+    // 彈窗與數據處理
     function openEdit(id) {
         const item = db.find(i => i.id === id);
         document.getElementById('modalOverlay').style.display = 'flex';
         document.getElementById('modalUI').innerHTML = `
-            <div style="font-size:0.7rem; color:var(--timestamp); margin-bottom:15px; font-weight:bold;">📅 上次盤點日期：${item.updatedAt}</div>
+            <div style="font-size:0.65rem; color:var(--text-sub); margin-bottom:10px;">最後盤點：${item.updatedAt}</div>
             <label>品項名稱</label><input type="text" id="upName" value="${item.name}">
-            <label>功能分類</label><input type="text" id="upSub" value="${item.subCat}">
             <label>狀態</label><select id="upStatus">
-                <option value="庫存" ${item.status==='庫存'?'selected':''}>庫存 (未開)</option>
-                <option value="服用中" ${item.status==='服用中'?'selected':''}>服用中 (OPEN)</option>
-                <option value="已吃完" ${item.status==='已吃完'?'selected':''}>已吃完 (Archive)</option>
+                <option value="庫存" ${item.status==='庫存'?'selected':''}>庫存</option>
+                <option value="服用中" ${item.status==='服用中'?'selected':''}>服用中</option>
+                <option value="已吃完" ${item.status==='已吃完'?'selected':''}>已吃完</option>
             </select>
             <div class="input-row">
-                <div class="flex-1"><label>每次顆數</label><input type="number" id="upDose" value="${item.dose}"></div>
-                <div class="flex-1"><label>每日次數</label><input type="number" id="upFreq" value="${item.freq}"></div>
+                <div class="flex-1"><label>剩餘數量</label><input type="number" id="upQty" value="${item.totalQty}"></div>
+                <div class="flex-1"><label>效期</label><input type="text" class="date-input" id="upExp" value="${item.expiry}"></div>
             </div>
-            <label>到期日期</label><input type="text" class="date-input" id="upExp" value="${item.expiry}">
-            <label>剩餘數量</label><input type="number" id="upQty" value="${item.totalQty}">
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn btn-main flex-1" onclick="updateItem(${id})">儲存盤點</button>
-                <button class="btn btn-outline flex-1" onclick="closeModal()">取消</button>
+            <div class="modal-actions">
+                <button class="btn btn-main" onclick="updateItem(${id})">儲存盤點</button>
+                <button class="btn btn-sub" onclick="closeModal()">取消</button>
             </div>
-            <button class="btn" style="color:var(--danger); background:none; font-size:0.7rem; margin-top:10px;" onclick="deleteItem(${id})">永久刪除此紀錄</button>`;
+            <span class="delete-link" onclick="deleteItem(${id})">永久刪除此紀錄</span>`;
         initDateInputs();
     }
 
     function updateItem(id) {
-        const item = db.find(i => i.id === id);
-        item.name = document.getElementById('upName').value;
-        item.subCat = document.getElementById('upSub').value;
-        item.status = document.getElementById('upStatus').value;
-        item.dose = parseInt(document.getElementById('upDose').value);
-        item.freq = parseInt(document.getElementById('upFreq').value);
-        item.expiry = document.getElementById('upExp').value;
-        item.totalQty = parseInt(document.getElementById('upQty').value);
-        item.updatedAt = new Date().toLocaleString();
+        const i = db.find(x => x.id === id);
+        i.name = document.getElementById('upName').value;
+        i.status = document.getElementById('upStatus').value;
+        i.totalQty = parseInt(document.getElementById('upQty').value);
+        i.expiry = document.getElementById('upExp').value;
+        i.updatedAt = new Date().toLocaleString();
         save(); closeModal();
+    }
+
+    function exportAndCopy() {
+        const data = JSON.stringify(db);
+        document.getElementById('dataBox').value = data;
+        navigator.clipboard.writeText(data).then(() => {
+            alert("數據已生成並自動複製到剪貼簿！共 " + db.length + " 筆。");
+        });
+    }
+
+    function importData() {
+        try {
+            const data = JSON.parse(document.getElementById('dataBox').value);
+            if(Array.isArray(data)) { db = data; save(); alert("還原成功！"); }
+        } catch(e) { alert("數據格式錯誤，請檢查 JSON 内容"); }
     }
 
     function switchTab(t) {
@@ -324,15 +326,10 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.onclick.toString().includes(t)));
         renderAll();
     }
-    function renderFinished() {
-        const items = db.filter(i => i.status === '已吃完');
-        document.getElementById('finished-list').innerHTML = items.length ? items.map(i => `<div class="item-row" style="opacity:0.5;"><div><s>${i.name}</s><div class="item-meta">${i.subCat} | 完食: ${i.updatedAt}</div></div></div>`).join('') : '<div class="item-meta" style="text-align:center; padding:10px;">無歷史紀錄</div>';
-    }
-    function exportData() { document.getElementById('dataBox').value = JSON.stringify(db); alert("已產出 JSON 數據"); }
-    function importData() { try { db = JSON.parse(document.getElementById('dataBox').value); save(); alert("還原成功"); } catch(e) { alert("格式錯誤"); } }
-    function cleanFinished() { if(confirm("確定清除所有已吃完的歷史？")) { db = db.filter(i => i.status !== '已吃完'); save(); } }
-    function deleteItem(id) { if(confirm("確定永久刪除？")) { db = db.filter(i => i.id !== id); save(); closeModal(); } }
+    function cleanFinished() { if(confirm("清除？")) { db = db.filter(i => i.status !== '已吃完'); save(); } }
+    function deleteItem(id) { if(confirm("確定刪除？")) { db = db.filter(i => i.id !== id); save(); closeModal(); } }
     function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+    
     renderAll();
 </script>
 </body>
