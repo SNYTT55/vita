@@ -25,7 +25,7 @@
         .item-info { flex: 1; min-width: 0; }
         .item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
         .item-name { font-size: 0.95rem; font-weight: bold; color: var(--text-main); }
-        .item-sub-label { font-size: 0.7rem; color: var(--primary); background: #FFF5EB; padding: 1px 5px; border-radius: 4px; }
+        .item-sub-label { font-size: 0.95rem; font-weight: bold; color: var(--primary); }
         .item-meta { font-size: 0.75rem; color: var(--text-sub); display: block; }
         
         .status-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
@@ -188,8 +188,8 @@
                 <div class="item-info">
                     <div class="item-header">
                         <span class="status-pill s-${item.status}">${item.status}</span>
-                        <span class="item-name">${item.name}</span>
                         <span class="item-sub-label">${item.subCat}</span>
+                        <span class="item-name">${item.name}</span>
                     </div>
                     <span class="item-meta">餘 ${item.totalQty} 顆 (約 ${daysLeft} 天) · ${cycleText} ${doseDetail} · 效期: ${item.expiry}</span>
                 </div>
