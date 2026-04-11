@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VitaVault V5.6.5</title>
+    <title>VitaVault V5.6.6</title>
     <style>
         :root {
             --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
@@ -21,12 +21,13 @@
         .card { background: var(--card); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--accent-soft); }
         .section-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 12px; color: var(--primary); border-left: 3px solid var(--primary); padding-left: 8px; }
         
-        .item-row { display: flex; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--accent-soft); cursor: pointer; }
-        .item-info { flex: 1; min-width: 0; }
+        .item-row { display: flex; flex-direction: column; padding: 14px 0; border-bottom: 1px solid var(--accent-soft); cursor: pointer; }
         .item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
         .item-name { font-size: 0.95rem; font-weight: bold; color: var(--text-main); }
-        .item-sub-label { font-size: 0.95rem; font-weight: bold; color: var(--primary); }
-        .item-meta { font-size: 0.75rem; color: var(--text-sub); display: block; }
+        .item-sub-label { font-size: 0.75rem; font-weight: bold; color: var(--primary); background: #FFF5EB; padding: 1px 6px; border-radius: 4px; }
+        .item-meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+        .item-data { font-size: 0.85rem; color: var(--text-main); }
+        .item-expiry { font-size: 0.7rem; color: var(--text-sub); }
         
         .status-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
         .s-服用中 { background: var(--primary); color: white; }
@@ -47,7 +48,7 @@
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V5.6.5</h1></div>
+<div class="header"><h1>VITAVAULT V5.6.6</h1></div>
 
 <nav class="nav-tabs">
     <div class="tab-btn active" onclick="switchTab('home')">今日</div>
@@ -119,7 +120,7 @@
 
     <div id="tab-plan" style="display:none;">
         <div class="card">
-            <div class="section-title">分類斷貨死線查詢</div>
+            <div class="section-title">斷貨查詢</div>
             <div class="input-row">
                 <div style="flex:7"><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div>
                 <div style="flex:3"><button class="btn btn-sub" style="width:100%" onclick="renderAnalysis()">分析</button></div>
@@ -169,29 +170,39 @@
     }
 
     function getDailyRate(item) {
-        let rate = item.cycle === 'weekly' ? (item.dose / 7) : (item.dose * (item.freq || 1));
+        let freq = parseInt(item.freq) || 1;
+        let dose = parseInt(item.dose) || 1;
+        let rate = item.cycle === 'weekly' ? (dose / 7) : (dose * freq);
         if (item.mainCat === '生理期') rate = rate * (7 / 30);
-        return rate || 0.0001;
+        return rate > 0 ? rate : 1; // 防呆：確保不為 0 避免無限天數
     }
 
     function createItemElement(item) {
         if (item.status === '已吃完') {
-            return `<div class="item-row" onclick="openEdit(${item.id})"><div class="item-info"><div class="item-header"><span class="status-pill s-已吃完">完食</span><span class="item-name">${item.name}</span></div><span class="item-meta">完成於: ${item.updatedAt}</span></div></div>`;
+            return `<div class="item-row" onclick="openEdit(${item.id})">
+                        <div class="item-header"><span class="status-pill s-已吃完">完食</span><span class="item-name">${item.name}</span></div>
+                        <span class="item-expiry">完成於: ${item.updatedAt}</span>
+                    </div>`;
         }
+        
         const rate = getDailyRate(item);
         const daysLeft = Math.round(item.totalQty / rate);
-        const cycleText = item.cycle === 'weekly' ? '每週' : '每日';
-        const doseDetail = item.cycle === 'daily' ? `${item.freq || 1}回，每回 ${item.dose}顆` : `${item.dose}顆`;
+        
+        // 服用中顯示天數，庫存顯示未開啟
+        const statusDisplay = item.status === '服用中' 
+            ? `可吃 <b style="color:var(--primary)">${daysLeft}</b> 天` 
+            : `<span style="color:var(--text-sub)">未開啟</span>`;
 
         return `
             <div class="item-row" onclick="openEdit(${item.id})">
-                <div class="item-info">
-                    <div class="item-header">
-                        <span class="status-pill s-${item.status}">${item.status}</span>
-                        <span class="item-sub-label">${item.subCat}</span>
-                        <span class="item-name">${item.name}</span>
-                    </div>
-                    <span class="item-meta">餘 ${item.totalQty} 顆 (約 ${daysLeft} 天) · ${cycleText} ${doseDetail} · 效期: ${item.expiry}</span>
+                <div class="item-header">
+                    <span class="status-pill s-${item.status}">${item.status}</span>
+                    <span class="item-sub-label">${item.subCat}</span>
+                    <span class="item-name">${item.name}</span>
+                </div>
+                <div class="item-meta-row">
+                    <span class="item-data">餘 ${item.totalQty} 顆 / ${statusDisplay}</span>
+                    <span class="item-expiry">效期: ${item.expiry}</span>
                 </div>
             </div>`;
     }
@@ -208,7 +219,7 @@
                 totalQty: parseInt(document.getElementById('totalQty').value),
                 cycle: document.getElementById('baseCycle').value,
                 freq: parseInt(document.getElementById('baseFreq').value) || 1,
-                dose: parseInt(document.getElementById('baseDose').value),
+                dose: parseInt(document.getElementById('baseDose').value) || 1,
                 expiry: exp, status: '庫存', updatedAt: new Date().toLocaleString()
             });
         }
@@ -244,7 +255,7 @@
                     </div>
                     <button class="btn btn-main" style="margin-top:5px; padding:10px;" onclick="quickOpen(${item.id})">確認開啟此瓶</button>
                 </div>`;
-        } else { res.innerHTML = '<div class="item-meta">目前無庫存</div>'; }
+        } else { res.innerHTML = '<div class="item-meta" style="font-size:0.75rem; color:#aaa; text-align:center;">目前無庫存</div>'; }
     }
 
     function quickOpen(id) {
@@ -252,7 +263,7 @@
         i.status = '服用中';
         i.cycle = document.getElementById('tempCycle').value;
         i.freq = parseInt(document.getElementById('tempFreq').value) || 1;
-        i.dose = parseInt(document.getElementById('tempDose').value);
+        i.dose = parseInt(document.getElementById('tempDose').value) || 1;
         i.updatedAt = new Date().toLocaleString();
         save();
     }
@@ -278,11 +289,11 @@
             const daysLeft = Math.floor(data.totalQty / data.dailyRate);
             if(daysLeft < targetDays) {
                 const gap = Math.ceil(data.dailyRate * targetDays) - data.totalQty;
-                out += `<div style="padding:10px 0; border-bottom:1px solid var(--accent-soft);"><div style="display:flex; justify-content:space-between;"><b>${sub}</b><span class="status-pill s-服用中">補 ${gap} 顆</span></div><div class="item-meta">剩 ${data.totalQty} 顆 / 可撐 ${daysLeft} 天</div></div>`;
+                out += `<div style="padding:10px 0; border-bottom:1px solid var(--accent-soft);"><div style="display:flex; justify-content:space-between;"><b>${sub}</b><span class="status-pill s-服用中">補 ${gap} 顆</span></div><div class="item-meta" style="font-size:0.75rem; color:var(--text-sub);">剩 ${data.totalQty} 顆 / 可撐 ${daysLeft} 天</div></div>`;
             }
         }
         const targetId = isTargetMode ? 'deadline-result' : 'plan-analysis';
-        document.getElementById(targetId).innerHTML = out || `<div class="item-meta" style="color:var(--safe)">✅ 庫存充足</div>`;
+        document.getElementById(targetId).innerHTML = out || `<div class="item-meta" style="color:var(--safe); font-size:0.75rem; text-align:center;">✅ 庫存充足</div>`;
     }
 
     function renderAll() {
@@ -313,7 +324,7 @@
                     </select>
                 </div>
                 <div style="flex:0.8"><label>回數</label><input type="number" id="upFreq" value="${i.freq || 1}"></div>
-                <div style="flex:1"><label>每回顆數</label><input type="number" id="upDose" value="${i.dose}"></div>
+                <div style="flex:1"><label>每回顆數</label><input type="number" id="upDose" value="${i.dose || 1}"></div>
             </div>
             <label>目前總餘量 (顆)</label><input type="number" id="upQty" value="${i.totalQty}">
             <label>效期日期</label><input type="text" class="date-input" id="upExp" value="${i.expiry}">
@@ -329,7 +340,7 @@
         i.status = document.getElementById('upStatus').value;
         i.cycle = document.getElementById('upCycle').value;
         i.freq = parseInt(document.getElementById('upFreq').value) || 1;
-        i.dose = parseInt(document.getElementById('upDose').value);
+        i.dose = parseInt(document.getElementById('upDose').value) || 1;
         i.totalQty = parseInt(document.getElementById('upQty').value);
         i.expiry = document.getElementById('upExp').value;
         i.updatedAt = new Date().toLocaleString();
