@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VitaVault V5.8.5</title>
+    <title>VitaVault</title>
     <style>
         :root {
             --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
@@ -21,20 +21,21 @@
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
 
         .container { max-width: 600px; margin: auto; padding: 15px; }
-        .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid #EEE; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        /* 調整後的卡片內距 */
+        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #EEE; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         
-        /* 還原截圖中的標題樣式 */
-        .section-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 12px; }
-
+        .section-title { font-size: 1rem; font-weight: bold; margin-bottom: 15px; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 12px; }
+        
         /* 還原截圖中的框框樣式 */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.9rem; margin-bottom: 8px; color: var(--text-label); font-weight: 500; }
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-label); font-weight: 500; }
+        
         input, select, textarea { 
             width: 100%; 
-            padding: 14px 16px; 
-            border-radius: 12px; 
+            padding: 8px 12px; /* 高度大幅縮小 */
+            border-radius: 8px; /* 圓角微調 */
             border: 1.5px solid var(--border-color); 
-            font-size: 1rem; 
+            font-size: 0.9rem; 
             background: #FDFDFD; 
             color: var(--text-main);
             transition: border-color 0.2s;
@@ -43,15 +44,15 @@
         input:focus { outline: none; border-color: var(--primary); background: #FFF; }
 
         /* 還原截圖中的排版比例 */
-        .input-row { display: flex; gap: 12px; margin-bottom: 15px; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
         .col-1 { flex: 1; }
         .col-2 { flex: 2; }
         .col-3 { flex: 3; }
 
         /* 按鈕與其他元件 */
-        .btn { border-radius: 12px; border: none; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-main { background: var(--primary); color: white; padding: 16px; width: 100%; margin-top: 10px; }
-        .btn-sub { background: white; border: 1px solid var(--border-color); color: var(--text-label); padding: 12px; }
+        .btn { border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; padding: 12px; width: 100%; margin-top: 5px; }
+        .btn-sub { background: white; border: 1px solid var(--border-color); color: var(--text-label); padding: 8px; }
         
         .item-row { padding: 15px 0; border-bottom: 1px solid #F5F5F5; cursor: pointer; }
         .item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
@@ -69,7 +70,7 @@
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V5.8.5</h1></div>
+<div class="header"><h1>VITAVAULT V</h1></div>
 
 <nav class="nav-tabs">
     <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">今日服用</div>
