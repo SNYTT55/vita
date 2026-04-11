@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VitaVault V5.6.8</title>
+    <title>VitaVault V5.7.1</title>
     <style>
         :root {
             --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
@@ -47,7 +47,7 @@
 </head>
 <body>
 
-<div class="header"><h1>VITAVAULT V5.6.8</h1></div>
+<div class="header"><h1>VITAVAULT V5.7.1</h1></div>
 
 <nav class="nav-tabs">
     <div class="tab-btn active" onclick="switchTab('home')">今日</div>
@@ -91,8 +91,8 @@
             </div>
             <div class="input-row">
                 <div style="flex:1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
-                <div style="flex:1"><label>每日回數</label><input type="number" id="baseFreq" value="1"></div>
-                <div style="flex:1"><label>每回顆數</label><input type="number" id="baseDose" value="1"></div>
+                <div style="flex:1"><label>每日回數</label><input type="text" id="baseFreq" value="1"></div>
+                <div style="flex:1"><label>每回顆數</label><input type="text" id="baseDose" value="1"></div>
             </div>
             <div class="input-row">
                 <div style="flex:1"><label>到期日期</label><input type="text" class="date-input" id="expiry" placeholder="YYYY/MM/DD"></div>
@@ -108,16 +108,29 @@
     </div>
 
     <div id="tab-stock" style="display:none;"><div class="card"><div class="section-title">純庫存清單</div><div id="full-inventory" style="max-height:65vh; overflow-y:auto;"></div></div></div>
-    <div id="tab-plan" style="display:none;"><div class="card"><div class="section-title">斷貨查詢</div><div class="input-row"><div style="flex:7"><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div><div style="flex:3"><button class="btn btn-sub" style="width:100%" onclick="renderAnalysis()">分析</button></div></div><div id="deadline-result"></div></div><div class="card"><div class="section-title">180 天補貨雷達</div><div id="plan-analysis"></div></div></div>
-    <div id="tab-data" style="display:none;"><div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
-        <div class="section-title" style="margin-bottom: 0;">數據管理</div>
-        <div id="lastUpdateText" style="font-size: 10px; color: #BBB; font-weight: 300;">存檔於：---</div>
+    
+    <div id="tab-plan" style="display:none;">
+        <div class="card"><div class="section-title">斷貨查詢</div><div class="input-row"><div style="flex:7"><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div><div style="flex:3"><button class="btn btn-sub" style="width:100%" onclick="renderAnalysis()">分析</button></div></div><div id="deadline-result"></div></div>
+        <div class="card"><div class="section-title">180 天補貨雷達</div><div id="plan-analysis"></div></div>
     </div>
-    <textarea id="dataBox" rows="6" style="font-size:11px; margin-bottom:10px; background:#fafafa; border: 1px solid #EEE; color: #999;"></textarea>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <button class="btn btn-main" onclick="exportAndCopy()">導出複製</button>
-        <button class="btn btn-sub" onclick="importData()">導入數據</button>
+
+    <div id="tab-data" style="display:none;">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <div class="section-title" style="margin-bottom: 0;">數據管理</div>
+                <div id="lastUpdateText" style="font-size: 10px; color: #BBB; font-weight: 300;">存檔於：---</div>
+            </div>
+            <textarea id="dataBox" rows="6" style="font-size:11px; margin-bottom:10px; background:#fafafa; border: 1px solid #EEE; color: #999;"></textarea>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button class="btn btn-main" onclick="exportAndCopy()">導出複製</button>
+                <button class="btn btn-sub" onclick="importData()">導入數據</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="section-title">歷史紀錄</div>
+            <div id="finished-list" style="max-height:300px; overflow-y:auto;"></div>
+            <button class="btn" style="color:var(--danger); width:100%; margin-top:15px; font-size:0.75rem; border:1px solid #fee;" onclick="cleanFinished()">清空歷史紀錄</button>
+        </div>
     </div>
 </div>
 
@@ -142,12 +155,12 @@
     }
 
     function getDailyRate(item) {
-       let freq = parseFloat(item.freq) || 1;
-    let dose = parseFloat(item.dose) || 1;
-    let rate = freq * dose;
-    if (item.mainCat === '生理期') rate = rate * (7 / 30);
-    return rate > 0 ? rate : 1;
-}
+        let freq = parseFloat(item.freq) || 1;
+        let dose = parseFloat(item.dose) || 1;
+        let rate = freq * dose;
+        if (item.mainCat === '生理期') rate = rate * (7 / 30);
+        return rate > 0 ? rate : 1;
+    }
 
     function createItemElement(item) {
         if (item.status === '已吃完') {
@@ -157,13 +170,17 @@
         const rate = getDailyRate(item);
         const daysLeft = Math.round(item.totalQty / rate);
         
-        // 效期警示邏輯
+        // 計算預計吃完日期
+        const finishDate = new Date();
+        finishDate.setDate(finishDate.getDate() + daysLeft);
+        const dateStr = `${finishDate.getMonth()+1}/${finishDate.getDate()}`;
+
         const expDate = new Date(item.expiry);
         const diffDays = (expDate - new Date()) / (1000 * 60 * 60 * 24);
         const expStyle = diffDays < 90 ? 'color:var(--danger); font-weight:bold;' : '';
 
         const statusDisplay = item.status === '服用中' 
-            ? `可吃 <b style="color:var(--primary)">${daysLeft}</b> 天` 
+            ? `預計 <b style="color:var(--primary)">${dateStr}</b> 吃完` 
             : `<span style="color:var(--text-sub)">未開啟</span>`;
 
         return `
@@ -191,8 +208,8 @@
                 id: Date.now() + i, mainCat: document.getElementById('mainCat').value,
                 subCat: document.getElementById('subCat').value || '未分類', name: name,
                 totalQty: parseInt(document.getElementById('totalQty').value),
-                freq: parseInt(document.getElementById('baseFreq').value) || 1,
-                dose: parseInt(document.getElementById('baseDose').value) || 1,
+                freq: document.getElementById('baseFreq').value || "1",
+                dose: document.getElementById('baseDose').value || "1",
                 expiry: exp, buyDate: buy, status: '庫存', updatedAt: new Date().toLocaleString()
             });
         }
@@ -212,7 +229,6 @@
         const sub = document.getElementById('dispSub').value;
         const res = document.getElementById('disp-result');
         
-        // 進化版排序：1. 效期 2. 購買日期 3. 入庫 ID
         const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存')
             .sort((a, b) => {
                 const dateA = new Date(a.expiry); const dateB = new Date(b.expiry);
@@ -227,8 +243,8 @@
                 <div style="border: 1px dashed var(--primary); padding:10px; border-radius:8px; background:#fff;">
                     ${createItemElement(item)}
                     <div class="input-row" style="margin-top:10px; padding:10px; background:#fdfdfd; border-radius:6px; border:1px solid #eee;">
-                        <div style="flex:1"><label>每日回數</label><input type="number" id="tempFreq" value="${item.freq || 1}"></div>
-                        <div style="flex:1"><label>每回顆數</label><input type="text" id="tempDose" value="${item.dose || 1}"></div>
+                        <div style="flex:1"><label>每日回數</label><input type="text" id="tempFreq" value="${item.freq || '1'}"></div>
+                        <div style="flex:1"><label>每回顆數</label><input type="text" id="tempDose" value="${item.dose || '1'}"></div>
                     </div>
                     <button class="btn btn-main" style="margin-top:5px; padding:10px;" onclick="quickOpen(${item.id})">確認開啟此瓶</button>
                 </div>`;
@@ -238,8 +254,8 @@
     function quickOpen(id) {
         const i = db.find(x => x.id === id);
         i.status = '服用中';
-        i.freq = parseInt(document.getElementById('tempFreq').value) || 1;
-        i.dose = parseInt(document.getElementById('tempDose').value) || 1;
+        i.freq = document.getElementById('tempFreq').value || "1";
+        i.dose = document.getElementById('tempDose').value || "1";
         i.updatedAt = new Date().toLocaleString();
         save();
     }
@@ -275,7 +291,7 @@
         document.getElementById('ongoing-list').innerHTML = db.filter(i => i.status === '服用中').map(i => createItemElement(i)).join('');
         document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').map(i => createItemElement(i)).join('');
         document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').map(i => createItemElement(i)).join('');
-        document.getElementById('lastUpdateText').innerText = "LAST RECORDED: " + (localStorage.getItem('vitaVault_lastUpdate') || "---");
+        document.getElementById('lastUpdateText').innerText = "存檔於：" + (localStorage.getItem('vitaVault_lastUpdate') || "---");
         updateDispOptions(); renderAnalysis();
     }
 
@@ -286,7 +302,7 @@
             <div class="section-title">數據盤點</div>
             <div style="margin-bottom:12px; font-size:1rem;"><b>${i.name}</b></div>
             <label>狀態</label><select id="upStatus" style="margin-bottom:10px;"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select>
-            <div class="input-row"><div style="flex:1"><label>每日回數</label><input type="number" id="upFreq" value="${i.freq || 1}"></div><div style="flex:1"><label>每回顆數</label><input type="number" id="upDose" value="${i.dose || 1}"></div></div>
+            <div class="input-row"><div style="flex:1"><label>每日回數</label><input type="text" id="upFreq" value="${i.freq || '1'}"></div><div style="flex:1"><label>每回顆數</label><input type="text" id="upDose" value="${i.dose || '1'}"></div></div>
             <label>目前總餘量 (顆)</label><input type="number" id="upQty" value="${i.totalQty}">
             <label>效期日期</label><input type="text" class="date-input" id="upExp" value="${i.expiry}">
             <label>購買日期</label><input type="text" class="date-input" id="upBuy" value="${i.buyDate || ''}">
@@ -297,8 +313,8 @@
     function updateItem(id) {
         const i = db.find(x => x.id === id);
         i.status = document.getElementById('upStatus').value;
-        i.freq = parseInt(document.getElementById('upFreq').value) || 1;
-        i.dose = parseInt(document.getElementById('upDose').value) || 1;
+        i.freq = document.getElementById('upFreq').value || "1";
+        i.dose = document.getElementById('upDose').value || "1";
         i.totalQty = parseInt(document.getElementById('upQty').value);
         i.expiry = document.getElementById('upExp').value;
         i.buyDate = document.getElementById('upBuy').value;
@@ -320,7 +336,7 @@
     function importData() {
         try { db = JSON.parse(document.getElementById('dataBox').value.trim()); save(); alert("導入成功"); } catch(e) { alert("失敗"); }
     }
-    function cleanFinished() { if(confirm("清空歷史？")) { db = db.filter(i => i.status !== '已吃完'); save(); } }
+    function cleanFinished() { if(confirm("確定要清空所有已吃完的歷史紀錄嗎？")) { db = db.filter(i => i.status !== '已吃完'); save(); } }
     window.onload = renderAll;
 </script>
 </body>
