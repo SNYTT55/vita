@@ -165,29 +165,42 @@
         return rate || 0.0001;
     }
 
-    function createItemElement(item) {
-        const isFinished = item.status === '已吃完';
-        const rate = getDailyRate(item);
-        const daysLeft = Math.round(item.totalQty / rate);
-        
-        if (isFinished) {
-            return `<div class="item-row" onclick="openEdit(${item.id})"><div class="item-info"><div class="item-header"><span class="status-pill s-已吃完">完食</span><span class="item-name">${item.name}</span></div><span class="item-meta">完成於: ${item.updatedAt}</span></div></div>`;
-        }
+// 請將原本 script 標籤內的 createItemElement 函數替換為這段
+function createItemElement(item) {
+    const isFinished = item.status === '已吃完';
+    const rate = getDailyRate(item);
+    const daysLeft = Math.round(item.totalQty / rate);
+    
+    // 計算預計吃完日期
+    const today = new Date();
+    today.setDate(today.getDate() + daysLeft);
+    const finishDate = today.getFullYear() + '/' + 
+                       String(today.getMonth() + 1).padStart(2, '0') + '/' + 
+                       String(today.getDate()).padStart(2, '0');
 
-        const doseInfo = (parseInt(item.freq) > 1 ? `${item.freq}回×` : '') + `${item.dose}顆`;
-
-        return `
-            <div class="item-row" onclick="openEdit(${item.id})">
-                <div class="item-info">
-                    <div class="item-header">
-                        <span class="status-pill s-${item.status}">${item.status}</span>
-                        <span class="item-sub-text">${item.subCat}</span>
-                        <span class="item-name">${item.name}</span>
-                    </div>
-                    <span class="item-meta">餘 ${item.totalQty} 顆 (約 ${daysLeft} 天) · ${doseInfo} · 效期: ${item.expiry}</span>
-                </div>
-            </div>`;
+    if (isFinished) {
+        return `<div class="item-row" onclick="openEdit(${item.id})"><div class="item-info"><div class="item-header"><span class="status-pill s-已吃完">完食</span><span class="item-name">${item.name}</span></div><span class="item-meta">完成於: ${item.updatedAt}</span></div></div>`;
     }
+
+    const doseInfo = (parseInt(item.freq) > 1 ? `${item.freq}回×` : '') + `${item.dose}顆`;
+
+    return `
+        <div class="item-row" onclick="openEdit(${item.id})">
+            <div class="item-info">
+                <div class="item-header">
+                    <span class="status-pill s-${item.status}">${item.status}</span>
+                    <span class="item-sub-text">${item.subCat}</span>
+                    <span class="item-name">${item.name}</span>
+                </div>
+                <div class="item-meta">
+                    餘 ${item.totalQty} 顆 (約 ${daysLeft} 天) · ${doseInfo}
+                </div>
+                <div class="item-meta" style="color: var(--primary); margin-top: 2px;">
+                    📅 預計吃完: ${finishDate} · 效期: ${item.expiry}
+                </div>
+            </div>
+        </div>`;
+}
 
     function batchAdd() {
         const name = document.getElementById('name').value;
