@@ -354,11 +354,26 @@
 
     function updateDispOptions() {
         const mode = document.getElementById('dispMain').value;
-        const subs = [...new Set(db.filter(i => i.mainCat === mode && i.status === '庫存').map(i => i.subCat))];
+        
+        // 1. 提取該模式下的分類
+        let subs = [...new Set(db.filter(i => i.mainCat === mode && i.status === '庫存').map(i => i.subCat))];
+        
+        // 2. 使用相同的標準化排序邏輯
+        const collator = new Intl.Collator('zh-Hant-TW', { 
+            numeric: true, 
+            sensitivity: 'base' 
+        });
+        subs.sort(collator.compare);
+    
         const el = document.getElementById('dispSub');
-        el.innerHTML = subs.length ? subs.map(s => `<option value="${s}">${s}</option>`).join('') : '<option value="">無</option>';
+        if (el) {
+            el.innerHTML = subs.length 
+                ? subs.map(s => `<option value="${s}">${s}</option>`).join('') 
+                : '<option value="">無</option>';
+        }
         renderDispRec();
     }
+
     function renderDispRec() {
         const mode = document.getElementById('dispMain').value; const sub = document.getElementById('dispSub').value;
         const res = document.getElementById('disp-result'); const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存').sort((a, b) => new Date(a.expiry) - new Date(b.expiry))[0];
