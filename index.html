@@ -35,8 +35,28 @@
         .col-1 { flex: 1; }
         .col-3 { flex: 3; }
         .col-7 { flex: 7; }
-        .col-sub { flex: 3; } /* 固定分類比例 */
-        .col-name { flex: 7; } /* 固定品名比例 */
+        /* 調整比例為 4:6 */
+        .col-sub { flex: 4; }
+        .col-name { flex: 6; }
+
+        /* 讓分類輸入框的容器可以放置隱藏選單 */
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        /* 隱藏但可點擊的原生選單 */
+        #subCatPicker {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100%; /* 讓整個分類框範圍都可以點擊觸發選單 */
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
 
         .btn { border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-main { background: var(--primary); color: white; padding: 12px; width: 100%; margin-top: 5px; }
@@ -104,18 +124,20 @@
             </div>
             <div class="input-row">
                 <div class="col-sub">
-    <label>分類</label>
-    <div style="position: relative;">
-        <input type="text" id="subCat" placeholder="輸入或選取">
-        <select id="subCatPicker" onchange="document.getElementById('subCat').value=this.value" 
-                style="position:absolute; right:0; top:0; width:40px; opacity:0; height:100%;">
-        </select>
-        <div style="position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--primary); font-size:10px;">▼</div>
-    </div>
-</div>
-      
-                <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
+                    <label>分類</label>
+                    <div class="select-wrapper">
+                        <input type="text" id="subCat" placeholder="選取或輸入" readonly onclick="updateSubCatDatalist()">
+                        <select id="subCatPicker" onchange="document.getElementById('subCat').value=this.value; if(this.value==='CUSTOM'){document.getElementById('subCat').value='';document.getElementById('subCat').readOnly=false;document.getElementById('subCat').focus();}">
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-name">
+                    <label>品名</label>
+                    <input type="text" id="name" placeholder="品項名稱">
+                </div>
             </div>
+
             <div class="input-row">
                 <div class="col-1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
                 <div class="col-1"><label>每日回數</label><input type="number" id="baseFreq" value="1"></div>
@@ -186,25 +208,22 @@
     }
     
     function updateSubCatDatalist() {
-        // 1. 提取並標準化格式
         let allSubs = [...new Set(db.map(i => {
             if (!i.subCat) return null;
             return i.subCat.trim().replace(/[\uFF01-\uFF5E]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
         }))].filter(s => s && s !== '未分類');
         
-        // 2. 排序
         const collator = new Intl.Collator('zh-Hant-TW', { numeric: true, sensitivity: 'base' });
         allSubs.sort(collator.compare);
         
-        // 3. 更新隱藏的 Select 選單
         const picker = document.getElementById('subCatPicker');
         if (picker) {
-            picker.innerHTML = '<option value="">新分類...</option>' + 
-                               allSubs.map(s => `<option value="${s}">${s}</option>`).join('');
+            // 第一個選項設為「自定義」，選了以後會解鎖 input 讓你打字
+            picker.innerHTML = '<option value="">▼ 選取分類</option>' + 
+                               allSubs.map(s => `<option value="${s}">${s}</option>`).join('') +
+                               '<option value="CUSTOM">✎ 手動輸入新分類</option>';
         }
     }
-
-
 
 
 
