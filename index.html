@@ -49,7 +49,7 @@
         .item-row { padding: 15px 0; border-bottom: 1px solid #F5F5F5; cursor: pointer; }
         .item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
         .item-name { font-size: 0.85rem; font-weight: 600; }
-        .item-sub-label { font-size: 0.85rem; color: var(--primary); padding: 2px 8px; border-radius: 6px; margin-right: -8px; }        
+        .item-sub-label { font-size: 0.85rem; color: var(--primary); padding: 2px 8px; border-radius: 6px; margin-right: -4px; }        
         .item-meta-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; }
 
         #modalOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; justify-content:center; align-items:center; backdrop-filter: blur(5px); }
@@ -124,7 +124,7 @@
                 <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="名稱"></div>
             </div>
             <div class="input-row">
-                <div class="col-1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
+                <div class="col-1"><label>總顆粒數</label><input type="number" id="totalQty" value="60"></div>
                 <div class="col-1"><label>每日回數</label><input type="number" id="baseFreq" value="1"></div>
                 <div class="col-1"><label>每回顆數</label><input type="number" id="baseDose" value="1"></div>
             </div>
@@ -226,7 +226,7 @@
         return `
             <div class="item-row" onclick="openEdit(${item.id})">
                 <div class="item-header"><span class="status-pill s-${item.status}">${item.status}</span><span class="item-sub-label">${item.subCat}</span><span class="item-name">${item.name}</span></div>
-                <div class="item-meta-row"><span>剩${item.totalQty}▪︎預計<b style="color:var(--primary)">${finishDate.getMonth()+1}/${finishDate.getDate()}</b>完</span><span>🗓️EXP:${item.expiry}</span></div>
+                <div class="item-meta-row"><span>剩${item.totalQty}顆▪︎預計<b style="color:var(--primary)">${finishDate.getMonth()+1}/${finishDate.getDate()}</b>吃完</span><span>🗓️EXP:${item.expiry}</span></div>
             </div>`;
     }
 
