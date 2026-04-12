@@ -4,7 +4,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vital</title>
+    <title>Supplement</title>
     <style>
         :root {
             --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
@@ -103,9 +103,17 @@
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
             </div>
             <div class="input-row">
-                <div class="col-sub"><label>分類</label><input type="text" id="subCat" list="existingSubCats" placeholder="選取或輸入" 
-       onfocus="updateSubCatDatalist(); this.value='';" 
-       onclick="updateSubCatDatalist(); this.value=''"></div>       
+                <div class="col-sub">
+    <label>分類</label>
+    <div style="position: relative;">
+        <input type="text" id="subCat" placeholder="輸入或選取">
+        <select id="subCatPicker" onchange="document.getElementById('subCat').value=this.value" 
+                style="position:absolute; right:0; top:0; width:40px; opacity:0; height:100%;">
+        </select>
+        <div style="position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--primary); font-size:10px;">▼</div>
+    </div>
+</div>
+      
                 <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
@@ -181,25 +189,21 @@
         // 1. 提取並標準化格式
         let allSubs = [...new Set(db.map(i => {
             if (!i.subCat) return null;
-            // 去前後空格，並將全形字母轉半形，確保排序前格式一致
             return i.subCat.trim().replace(/[\uFF01-\uFF5E]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
         }))].filter(s => s && s !== '未分類');
         
-        // 2. 排序 (強制使用台灣慣用的中英混排規則)
-        const collator = new Intl.Collator('zh-Hant-TW', { 
-            numeric: true, 
-            sensitivity: 'base' 
-        });
+        // 2. 排序
+        const collator = new Intl.Collator('zh-Hant-TW', { numeric: true, sensitivity: 'base' });
         allSubs.sort(collator.compare);
         
-        // 3. 強制刷新 DOM 節點 (解決瀏覽器排序不更新的問題)
-        const oldList = document.getElementById('existingSubCats');
-        const newList = document.createElement('datalist');
-        newList.id = 'existingSubCats';
-        newList.innerHTML = allSubs.map(s => `<option value="${s}">`).join('');
-        
-        if (oldList) oldList.parentNode.replaceChild(newList, oldList);
+        // 3. 更新隱藏的 Select 選單
+        const picker = document.getElementById('subCatPicker');
+        if (picker) {
+            picker.innerHTML = '<option value="">新分類...</option>' + 
+                               allSubs.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
     }
+
 
 
 
