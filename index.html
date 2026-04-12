@@ -14,7 +14,6 @@
         * { box-sizing: border-box; font-family: -apple-system, "Noto Sans TC", sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
-        /* 頁首與導覽 */
         .header { background: #fff; padding: 20px; border-bottom: 1px solid #EEE; text-align: center; }
         .header h1 { margin: 0; font-size: 1rem; letter-spacing: 4px; color: var(--primary); font-weight: 300; text-transform: uppercase; }
         .nav-tabs { display: flex; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #EEE; }
@@ -22,37 +21,23 @@
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
 
         .container { max-width: 600px; margin: auto; padding: 15px; }
-        /* 調整後的卡片內距 */
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #EEE; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        
         .section-title { font-size: 1rem; font-weight: bold; margin-bottom: 15px; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 12px; }
         
-        /* 還原截圖中的框框樣式 */
-        .input-group { margin-bottom: 10px; }
         label { display: block; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-label); font-weight: 500; }
-        
         input, select, textarea { 
-            width: 100%; 
-            padding: 8px 12px; /* 高度大幅縮小 */
-            border-radius: 8px; /* 圓角微調 */
-            border: 1.5px solid var(--border-color); 
-            font-size: 0.9rem; 
-            background: #FDFDFD; 
-            color: var(--text-main);
-            transition: border-color 0.2s;
+            width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border-color); 
+            font-size: 0.9rem; background: #FDFDFD; color: var(--text-main); transition: border-color 0.2s;
         }
-        input::placeholder { color: #BDBDBD; }
         input:focus { outline: none; border-color: var(--primary); background: #FFF; }
 
-        /* 還原截圖中的排版比例 */
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
         .col-1 { flex: 1; }
-        .col-sub { flex: 3; }
-        .col-name { flex: 7; }
-        .col-2 { flex: 2; }
         .col-3 { flex: 3; }
+        .col-7 { flex: 7; }
+        .col-sub { flex: 3; } /* 固定分類比例 */
+        .col-name { flex: 7; } /* 固定品名比例 */
 
-        /* 按鈕與其他元件 */
         .btn { border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-main { background: var(--primary); color: white; padding: 12px; width: 100%; margin-top: 5px; }
         .btn-sub { background: white; border: 1px solid var(--border-color); color: var(--text-label); padding: 8px; }
@@ -79,6 +64,8 @@
     <div class="tab-btn" id="btn-plan" onclick="switchTab('plan')">採買規劃</div>
     <div class="tab-btn" id="btn-data" onclick="switchTab('data')">數據管理</div>
 </nav>
+
+<datalist id="existingSubCats"></datalist>
 
 <div class="container">
     <div id="tab-home">
@@ -116,7 +103,7 @@
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
             </div>
             <div class="input-row">
-                <div class="col-sub"><label>分類</label><input type="text" id="subCat" placeholder="如：鐵劑"></div>
+                <div class="col-sub"><label>分類</label><input type="text" id="subCat" list="existingSubCats" placeholder="選取或輸入"></div>
                 <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
@@ -173,7 +160,6 @@
 <script>
     let db = JSON.parse(localStorage.getItem('vitaVault_db') || '[]');
 
-    // 自動格式化日期 YYYY/MM/DD
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('date-input')) {
             let val = e.target.value.replace(/\D/g, '').substring(0, 8);
@@ -189,7 +175,12 @@
         renderAll();
     }
 
-    // 核心邏輯：庫存模擬（包含生理期特殊模式）
+    function updateSubCatDatalist() {
+        const allSubs = [...new Set(db.map(i => i.subCat))].filter(s => s && s !== '未分類');
+        const datalist = document.getElementById('existingSubCats');
+        datalist.innerHTML = allSubs.map(s => `<option value="${s}">`).join('');
+    }
+
     function simulateInventory(itemList, targetDays = 2000) {
         if (!itemList.length) return { days: 0, gap: 0 };
         let sorted = [...itemList].sort((a,b) => new Date(a.expiry) - new Date(b.expiry));
@@ -246,7 +237,6 @@
         const name = document.getElementById('name').value;
         const count = parseInt(document.getElementById('packCount').value) || 1;
         const exp = document.getElementById('expiry').value;
-        const buy = document.getElementById('buyDate').value;
         if(!name || exp.length < 10) return alert("請填寫品名與有效日期");
 
         for(let n=0; n<count; n++) {
@@ -256,7 +246,7 @@
                 subCat: document.getElementById('subCat').value || '未分類',
                 name: name,
                 totalQty: parseInt(document.getElementById('totalQty').value),
-                buyDate: buy,
+                buyDate: document.getElementById('buyDate').value,
                 expiry: exp,
                 freq: document.getElementById('baseFreq').value,
                 dose: document.getElementById('baseDose').value,
@@ -267,6 +257,7 @@
         save();
         alert(`已成功登錄 ${count} 筆入庫！`);
         document.getElementById('name').value = '';
+        document.getElementById('subCat').value = '';
     }
 
     function openEdit(id) {
@@ -276,9 +267,11 @@
             <div class="section-title">編輯數據項目</div>
             <div class="input-row">
                 <div class="col-1"><label>模式</label><select id="upMain"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option></select></div>
-                <div class="col-1"><label>分類</label><input type="text" id="upSub" value="${i.subCat}"></div>
+                <div class="col-sub"><label>分類</label><input type="text" id="upSub" list="existingSubCats" value="${i.subCat}"></div>
             </div>
-            <label>品名</label><input type="text" id="upName" value="${i.name}">
+            <div class="input-row">
+                <div class="col-1"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
+            </div>
             <div class="input-row">
                 <div class="col-1"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
                 <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
@@ -312,7 +305,7 @@
         document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').sort((a,b) => new Date(a.expiry) - new Date(b.expiry)).map(i => createItemElement(i)).join('') || '<div style="text-align:center; padding:20px; color:#CCC;">無庫存備品</div>';
         document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map(i => createItemElement(i)).join('') || '<div style="text-align:center; padding:20px; color:#CCC;">無歷史紀錄</div>';
         document.getElementById('lastUpdateText').innerText = "最後同步：" + (localStorage.getItem('vitaVault_lastUpdate') || "---");
-        updateDispOptions(); renderAnalysis(false);
+        updateDispOptions(); renderAnalysis(false); updateSubCatDatalist();
     }
 
     function updateDispOptions() {
