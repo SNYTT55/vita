@@ -31,31 +31,35 @@
         }
         input:focus { outline: none; border-color: var(--primary); background: #FFF; }
 
-        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .col-1 { flex: 1; }
-        .col-3 { flex: 3; }
-        .col-7 { flex: 7; }
-        /* 調整比例為 4:6 */
-        .col-sub { flex: 4; }
-        .col-name { flex: 6; }
+/* 統一全站 input-row 比例 */
+.input-row .col-sub { flex: 4 !important; }
+.input-row .col-name { flex: 6 !important; }
+.input-row .col-full { flex: 10 !important; width: 100%; }
 
-        /* 讓分類輸入框的容器可以放置隱藏選單 */
-        .select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        
-        /* 隱藏但可點擊的原生選單 */
-        #subCatPicker {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 100%; /* 讓整個分類框範圍都可以點擊觸發選單 */
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-            -webkit-appearance: none;
-        }
+/* 確保 Select Wrapper 內部整齊 */
+.select-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#subCatPicker, #upSubPicker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2; /* 確保在 input 上方 */
+}
+
+/* 讓唯讀狀態的 input 看起來不像壞掉 */
+input[readonly] {
+    background-color: #FDFDFD;
+    cursor: pointer;
+}
 
 
         .btn { border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
@@ -308,32 +312,72 @@
         document.getElementById('subCat').value = '';
     }
 
-    function openEdit(id) {
-        const i = db.find(x => x.id === id);
-        // 每次打開編輯器前，先更新一下分類清單供選取
-        updateSubCatDatalist();
+function openEdit(id) {
+    const i = db.find(x => x.id === id);
+    updateSubCatDatalist(); // 確保選單資料是最新的
+    
+    document.getElementById('modalOverlay').style.display = 'flex';
+    document.getElementById('modalUI').innerHTML = `
+        <div class="section-title">編輯數據項目</div>
         
-        document.getElementById('modalOverlay').style.display = 'flex';
-        document.getElementById('modalUI').innerHTML = `
-            <div class="section-title">編輯數據項目</div>
-            
-            <div class="input-row">
-                <div class="col-sub"><label>模式</label>
-                    <select id="upMain">
-                        <option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option>
-                        <option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option>
-                        <option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option>
+        <div class="input-row">
+            <div class="col-sub">
+                <label>模式</label>
+                <select id="upMain">
+                    <option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option>
+                    <option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option>
+                    <option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option>
+                </select>
+            </div>
+            <div class="col-name">
+                <label>分類</label>
+                <div class="select-wrapper">
+                    <input type="text" id="upSub" value="${i.subCat}" readonly>
+                    <select id="upSubPicker" onchange="document.getElementById('upSub').value=this.value; if(this.value==='CUSTOM'){document.getElementById('upSub').value='';document.getElementById('upSub').readOnly=false;document.getElementById('upSub').focus();}">
+                        ${document.getElementById('subCatPicker').innerHTML}
                     </select>
                 </div>
-                <div class="col-name"><label>分類</label>
-                    <div class="select-wrapper">
-                        <input type="text" id="upSub" value="${i.subCat}" readonly>
-                        <select id="upSubPicker" onchange="document.getElementById('upSub').value=this.value; if(this.value==='CUSTOM'){document.getElementById('upSub').value='';document.getElementById('upSub').readOnly=false;document.getElementById('upSub').focus();}" style="position:absolute; right:0; top:0; width:100%; height:100%; opacity:0;">
-                            ${document.getElementById('subCatPicker').innerHTML}
-                        </select>
-                    </div>
-                </div>
             </div>
+        </div>
+
+        <div class="input-row">
+            <div class="col-full">
+                <label>品名</label>
+                <input type="text" id="upName" value="${i.name}">
+            </div>
+        </div>
+
+        <div class="input-row">
+            <div class="col-1"><label>狀態</label>
+                <select id="upStatus">
+                    <option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option>
+                    <option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option>
+                    <option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option>
+                </select>
+            </div>
+            <div class="col-1"><label>剩餘顆數</label>
+                <input type="number" id="upQty" value="${i.totalQty}">
+            </div>
+        </div>
+
+        <div class="input-row">
+            <div class="col-1"><label>到期日期</label><input type="text" class="date-input" id="upExp" value="${i.expiry}"></div>
+            <div class="col-1"><label>購買日期</label><input type="text" class="date-input" id="upBuy" value="${i.buyDate || ''}"></div>
+        </div>
+
+        <div class="input-row">
+            <div class="col-1"><label>日回</label><input type="number" id="upFreq" value="${i.freq}"></div>
+            <div class="col-1"><label>回顆</label><input type="number" id="upDose" value="${i.dose}"></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+            <button class="btn btn-main" style="margin:0" onclick="updateItem(${id})">儲存變更</button>
+            <button class="btn btn-sub" onclick="closeModal()">取消返回</button>
+        </div>
+        <div style="text-align:center; color:red; margin-top:25px; font-size:12px; cursor:pointer;" onclick="deleteItem(${id})">⚠️ 刪除此筆資料</div>
+    `;
+}
+
 
             <div class="input-row">
                 <div class="col-full"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
