@@ -103,7 +103,7 @@
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
             </div>
             <div class="input-row">
-                <div class="col-sub"><label>分類</label><input type="text" id="subCat" list="existingSubCats" placeholder="選取或輸入"></div>
+                <div class="col-sub"><label>分類</label><input type="text" id="subCat" list="existingSubCats" placeholder="選取或輸入"  onfocus="this.value=''" onclick="this.value=''"></div>       
                 <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
@@ -174,24 +174,26 @@
         localStorage.setItem('vitaVault_lastUpdate', new Date().toLocaleString());
         renderAll();
     }
-
+    
     function updateSubCatDatalist() {
-        // 提取並清理數據：去空格、全形轉半形
+        // 1. 提取並統一格式（去空格、轉大寫確保排序一致）
         const allSubs = [...new Set(db.map(i => {
             if (!i.subCat) return null;
-            return i.subCat
-                .trim() // 去掉前後空格
-                .replace(/[\uFF01-\uFF5E]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)); // 全形轉半形
+            return i.subCat.trim();
         }))].filter(s => s && s !== '未分類');
         
-        // 排序
-        allSubs.sort((a, b) => a.localeCompare(undefined, {numeric: true, sensitivity: 'base'}));
+        // 2. 排序邏輯：使用 zh-Hant-TW 確保中文與英文字母混合時的正確性
+        allSubs.sort((a, b) => a.localeCompare('zh-Hant-TW', {
+            numeric: true, 
+            sensitivity: 'base'
+        }));
         
         const datalist = document.getElementById('existingSubCats');
         if (datalist) {
             datalist.innerHTML = allSubs.map(s => `<option value="${s}">`).join('');
         }
     }
+    
 
 
 
