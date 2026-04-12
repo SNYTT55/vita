@@ -69,7 +69,11 @@
         .item-meta-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; }
 
         #modalOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center; backdrop-filter: blur(3px); }
-        .modal-content { background:white; padding:25px; border-radius:20px; width:92%; max-width:450px; max-height: 90vh; overflow-y: auto; }
+        /* 編輯模式專用的比例微調 */
+.modal-content .col-sub { flex: 4; }
+.modal-content .col-1 { flex: 1; }
+.modal-content .col-full { flex: 10; width: 100%; } /* 用於品名單獨一行時 */
+
         .status-pill { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .s-服用中 { background: var(--primary); color: white; }
         .s-庫存 { background: #EEECE8; color: #777; }
@@ -306,34 +310,63 @@
 
     function openEdit(id) {
         const i = db.find(x => x.id === id);
+        // 每次打開編輯器前，先更新一下分類清單供選取
+        updateSubCatDatalist();
+        
         document.getElementById('modalOverlay').style.display = 'flex';
         document.getElementById('modalUI').innerHTML = `
             <div class="section-title">編輯數據項目</div>
+            
             <div class="input-row">
-                <div class="col-1"><label>模式</label><select id="upMain"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option></select></div>
-                <div class="col-sub"><label>分類</label><input type="text" id="upSub" list="existingSubCats" value="${i.subCat}"></div>
+                <div class="col-sub"><label>模式</label>
+                    <select id="upMain">
+                        <option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option>
+                        <option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option>
+                        <option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option>
+                    </select>
+                </div>
+                <div class="col-name"><label>分類</label>
+                    <div class="select-wrapper">
+                        <input type="text" id="upSub" value="${i.subCat}" readonly>
+                        <select id="upSubPicker" onchange="document.getElementById('upSub').value=this.value; if(this.value==='CUSTOM'){document.getElementById('upSub').value='';document.getElementById('upSub').readOnly=false;document.getElementById('upSub').focus();}" style="position:absolute; right:0; top:0; width:100%; height:100%; opacity:0;">
+                            ${document.getElementById('subCatPicker').innerHTML}
+                        </select>
+                    </div>
+                </div>
             </div>
+
             <div class="input-row">
-                <div class="col-1"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
+                <div class="col-full"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
             </div>
+
             <div class="input-row">
-                <div class="col-1"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
+                <div class="col-1"><label>狀態</label>
+                    <select id="upStatus">
+                        <option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option>
+                        <option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option>
+                        <option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option>
+                    </select>
+                </div>
                 <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
             </div>
+
             <div class="input-row">
                 <div class="col-1"><label>到期日期</label><input type="text" class="date-input" id="upExp" value="${i.expiry}"></div>
                 <div class="col-1"><label>購買日期</label><input type="text" class="date-input" id="upBuy" value="${i.buyDate || ''}"></div>
             </div>
+
             <div class="input-row">
                 <div class="col-1"><label>日回</label><input type="number" id="upFreq" value="${i.freq}"></div>
                 <div class="col-1"><label>回顆</label><input type="number" id="upDose" value="${i.dose}"></div>
             </div>
+
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
                 <button class="btn btn-main" style="margin:0" onclick="updateItem(${id})">儲存變更</button>
                 <button class="btn btn-sub" onclick="closeModal()">取消返回</button>
             </div>
             <div style="text-align:center; color:red; margin-top:25px; font-size:12px; cursor:pointer;" onclick="deleteItem(${id})">⚠️ 刪除此筆資料</div>`;
     }
+
 
     function updateItem(id) {
         const i = db.find(x => x.id === id);
