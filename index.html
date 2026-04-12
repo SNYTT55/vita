@@ -103,7 +103,9 @@
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
             </div>
             <div class="input-row">
-                <div class="col-sub"><label>分類</label><input type="text" id="subCat" list="existingSubCats" placeholder="選取或輸入"  onfocus="this.value=''" onclick="this.value=''"></div>       
+                <div class="col-sub"><label>分類</label><input type="text" id="subCat" list="existingSubCats" placeholder="選取或輸入" 
+       onfocus="updateSubCatDatalist(); this.value='';" 
+       onclick="updateSubCatDatalist(); this.value=''"></div>       
                 <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="品項名稱"></div>
             </div>
             <div class="input-row">
@@ -176,24 +178,29 @@
     }
     
     function updateSubCatDatalist() {
-        // 1. 提取並統一格式（去空格、轉大寫確保排序一致）
-        const allSubs = [...new Set(db.map(i => {
+        // 1. 提取並標準化格式
+        let allSubs = [...new Set(db.map(i => {
             if (!i.subCat) return null;
-            return i.subCat.trim();
+            // 去前後空格，並將全形字母轉半形，確保排序前格式一致
+            return i.subCat.trim().replace(/[\uFF01-\uFF5E]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
         }))].filter(s => s && s !== '未分類');
         
-        // 2. 排序邏輯：使用 zh-Hant-TW 確保中文與英文字母混合時的正確性
-        allSubs.sort((a, b) => a.localeCompare('zh-Hant-TW', {
+        // 2. 排序 (強制使用台灣慣用的中英混排規則)
+        const collator = new Intl.Collator('zh-Hant-TW', { 
             numeric: true, 
-            sensitivity: 'base'
-        }));
+            sensitivity: 'base' 
+        });
+        allSubs.sort(collator.compare);
         
-        const datalist = document.getElementById('existingSubCats');
-        if (datalist) {
-            datalist.innerHTML = allSubs.map(s => `<option value="${s}">`).join('');
-        }
+        // 3. 強制刷新 DOM 節點 (解決瀏覽器排序不更新的問題)
+        const oldList = document.getElementById('existingSubCats');
+        const newList = document.createElement('datalist');
+        newList.id = 'existingSubCats';
+        newList.innerHTML = allSubs.map(s => `<option value="${s}">`).join('');
+        
+        if (oldList) oldList.parentNode.replaceChild(newList, oldList);
     }
-    
+
 
 
 
