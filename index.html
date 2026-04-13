@@ -86,7 +86,7 @@
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
                         <option value="體態控制">體態控制</option>
-                        <option value="常備補充">常備補充</option>
+                        <option value="補充品">補充品</option>
                     </select>
                 </div>
                 <div class="col-1"><label>分類</label><select id="dispSub" onchange="renderDispRec()"></select></div>
@@ -105,7 +105,7 @@
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
                         <option value="體態控制">體態控制</option>
-                        <option value="常備補充">常備補充</option>
+                        <option value="補充品">補充品</option>
                     </select>
                 </div>
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
@@ -191,8 +191,8 @@
 
     function simulateInventory(itemList, targetDays = 2000) {
         if (!itemList.length) return { days: 0, gap: 0 };
-        // 過濾掉非固定頻率的項目（常備補充）
-        let activeItems = itemList.filter(i => i.mainCat !== '常備補充' && i.isRoutine !== false);
+        // 過濾掉非固定頻率的項目（補充品）
+        let activeItems = itemList.filter(i => i.mainCat !== '補充品' && i.isRoutine !== false);
         if (activeItems.length === 0) return { days: 9999, gap: 0 };
 
         let sorted = [...activeItems].sort((a,b) => new Date(a.expiry) - new Date(b.expiry));
@@ -223,7 +223,7 @@
         const diff = Math.ceil((expDate - new Date()) / 86400000);
         const expColor = diff < 30 ? 'var(--danger)' : (diff < 90 ? '#E69B35' : '#666');
 
-        if (item.mainCat === '常備補充' || item.isRoutine === false) {
+        if (item.mainCat === '補充品' || item.isRoutine === false) {
             info = `<b style="color:${expColor}">效期剩 ${diff} 天</b>`;
         } else {
             const sim = simulateInventory([item]);
@@ -235,7 +235,7 @@
         return `
             <div class="item-row" onclick="openEdit(${item.id})">
                 <div class="item-header"><span class="status-pill s-${item.status}">${item.status}</span><span class="item-sub-label">${item.subCat}</span><span class="item-name">${item.name}</span></div>
-                <div class="item-meta-row"><span>剩${item.totalQty}▪︎${info}</span><span>🗓️EXP:${item.expiry}</span></div>
+                <div class="item-meta-row"><span>${item.totalQty}顆▪︎${info}</span><span>🗓️EXP:${item.expiry}</span></div>
             </div>`;
     }
 
@@ -254,7 +254,7 @@
                 expiry: exp, 
                 freq: document.getElementById('baseFreq').value, 
                 dose: document.getElementById('baseDose').value, 
-                isRoutine: (mode !== '常備補充'),
+                isRoutine: (mode !== '補充品'),
                 status: '庫存', 
                 updatedAt: new Date().toLocaleString() 
             });
@@ -269,7 +269,7 @@
         document.getElementById('modalUI').innerHTML = `
             <div class="section-title">編輯數據項目</div>
             <div class="input-row">
-                <div class="col-sub"><label>模式</label><select id="upMain"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option><option value="常備補充" ${i.mainCat==='常備補充'?'selected':''}>常備補充</option></select></div>
+                <div class="col-sub"><label>模式</label><select id="upMain"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option><option value="補充品" ${i.mainCat==='補充品'?'selected':''}>補充品</option></select></div>
                 <div class="col-name"><label>分類</label><div class="select-wrapper"><input type="text" id="upSub" value="${i.subCat}" readonly><select id="upSubPicker" onchange="document.getElementById('upSub').value=this.value;">${document.getElementById('subCatPicker').innerHTML}</select></div></div>
             </div>
             <div class="input-row"><div class="col-full"><label>品名</label><input type="text" id="upName" value="${i.name}"></div></div>
@@ -298,7 +298,7 @@
         i.name = document.getElementById('upName').value; i.status = document.getElementById('upStatus').value;
         i.totalQty = parseInt(document.getElementById('upQty').value); i.expiry = document.getElementById('upExp').value;
         i.buyDate = document.getElementById('upBuy').value; i.freq = document.getElementById('upFreq').value; i.dose = document.getElementById('upDose').value;
-        i.isRoutine = (i.mainCat !== '常備補充');
+        i.isRoutine = (i.mainCat !== '補充品');
         i.updatedAt = new Date().toLocaleString(); save(); closeModal();
     }
 
@@ -311,7 +311,7 @@
         
         // 庫存排序：基礎/體態(1) > 生理期(2) > 常備(3)
         document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').sort((a,b) => {
-            const getRank = (item) => (item.mainCat === '常備補充') ? 3 : (item.mainCat === '生理期' ? 2 : 1);
+            const getRank = (item) => (item.mainCat === '補充品') ? 3 : (item.mainCat === '生理期' ? 2 : 1);
             if (getRank(a) !== getRank(b)) return getRank(a) - getRank(b);
             return new Date(a.expiry) - new Date(b.expiry);
         }).map(i => createItemElement(i)).join('') || '<div style="text-align:center; padding:20px; color:#CCC;">無庫存備品</div>';
@@ -341,8 +341,8 @@
         const targetDays = isManual ? Math.ceil((new Date(document.getElementById('checkDate').value) - new Date().setHours(0,0,0,0)) / 86400000) : 90;
         if (isNaN(targetDays)) return;
         const subGroup = {}; 
-        // 採買分析不計入常備補充
-        db.filter(i => i.status !== '已吃完' && i.mainCat !== '常備補充').forEach(i => { if(!subGroup[i.subCat]) subGroup[i.subCat] = []; subGroup[i.subCat].push(i); });
+        // 採買分析不計入補充品
+        db.filter(i => i.status !== '已吃完' && i.mainCat !== '補充品').forEach(i => { if(!subGroup[i.subCat]) subGroup[i.subCat] = []; subGroup[i.subCat].push(i); });
         let out = "";
         for(let sub in subGroup) {
             const res = simulateInventory(subGroup[sub], targetDays);
