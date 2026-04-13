@@ -228,7 +228,7 @@
             const sim = simulateInventory([item]);
             const days = (typeof sim === 'number') ? sim : sim.days;
             const finishDate = new Date(); finishDate.setDate(finishDate.getDate() + days);
-            info = `預計<b style="color:var(--primary)">${finishDate.getMonth()+1}/${finishDate.getDate()}</b>完`;
+            info = `預計<b style="color:var(--primary)">${finishDate.getMonth()+1}/${finishDate.getDate()}</b>吃完`;
         }
 
         return `
