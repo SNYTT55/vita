@@ -85,7 +85,6 @@
                     <select id="dispMain" onchange="updateDispOptions()">
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
-                        <option value="體態控制">體態控制</option>
                         <option value="補充品">補充品</option>
                     </select>
                 </div>
@@ -104,7 +103,6 @@
                     <select id="mainCat">
                         <option value="基礎營養">基礎營養</option>
                         <option value="生理期">生理期</option>
-                        <option value="體態控制">體態控制</option>
                         <option value="補充品">補充品</option>
                     </select>
                 </div>
@@ -223,6 +221,7 @@
         const diff = Math.ceil((expDate - new Date()) / 86400000);
         const expColor = diff < 30 ? 'var(--danger)' : (diff < 90 ? '#E69B35' : '#666');
 
+        // 補充品或手動設為非日常的項目，顯示剩餘效期
         if (item.mainCat === '補充品' || item.isRoutine === false) {
             info = `<b style="color:${expColor}">效期剩 ${diff} 天</b>`;
         } else {
@@ -269,7 +268,7 @@
         document.getElementById('modalUI').innerHTML = `
             <div class="section-title">編輯數據項目</div>
             <div class="input-row">
-                <div class="col-sub"><label>模式</label><select id="upMain"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="體態控制" ${i.mainCat==='體態控制'?'selected':''}>體態控制</option><option value="補充品" ${i.mainCat==='補充品'?'selected':''}>補充品</option></select></div>
+                <div class="col-sub"><label>模式</label><select id="upMain"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="補充品" ${i.mainCat==='補充品'?'selected':''}>補充品</option></select></div>
                 <div class="col-name"><label>分類</label><div class="select-wrapper"><input type="text" id="upSub" value="${i.subCat}" readonly><select id="upSubPicker" onchange="document.getElementById('upSub').value=this.value;">${document.getElementById('subCatPicker').innerHTML}</select></div></div>
             </div>
             <div class="input-row"><div class="col-full"><label>品名</label><input type="text" id="upName" value="${i.name}"></div></div>
@@ -309,7 +308,7 @@
             return (typeof dA==='number'?dA:dA.days) - (typeof dB==='number'?dB:dB.days);
         }).map(i => createItemElement(i)).join('') || '<div style="text-align:center; padding:20px; color:#CCC;">無服用中項目</div>';
         
-        // 庫存排序：基礎/體態(1) > 生理期(2) > 常備(3)
+        // 庫存排序：基礎(1) > 生理期(2) > 補充品(3)
         document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').sort((a,b) => {
             const getRank = (item) => (item.mainCat === '補充品') ? 3 : (item.mainCat === '生理期' ? 2 : 1);
             if (getRank(a) !== getRank(b)) return getRank(a) - getRank(b);
