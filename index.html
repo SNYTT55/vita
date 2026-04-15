@@ -6,65 +6,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Supplement</title>
     <style>
-        :root {
-            --primary: #CC7722; --bg: #F9F8F6; --card: #ffffff;
-            --text-main: #424242; --text-label: #757575; --border-color: #E0E0E0;
-            --danger: #BC4A3C; --safe: #6B8E23;
-        }
-        * { box-sizing: border-box; font-family: -apple-system, "Noto Sans TC", sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
-        
-        .header { background: #fff; padding: 20px; border-bottom: 1px solid #EEE; text-align: center; }
-        .header h1 { margin: 0; font-size: 1rem; letter-spacing: 4px; color: var(--primary); font-weight: 300; text-transform: uppercase; }
-        .nav-tabs { display: flex; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #EEE; }
-        .tab-btn { flex: 1; padding: 14px 5px; text-align: center; font-size: 0.8rem; color: #999; cursor: pointer; }
-        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
+:root {
+    --mj-bg: #f6f5f0;           /* 溫潤米色底 */
+    --mj-card-bg: #fdfaf5;      /* 手帳紙張色 */
+    --mj-input-bg: #ffffff;     /* 輸入區純白 */
+    --mj-text-main: #333333;    
+    --mj-text-sub: #7f7f7f;     
+    --mj-border: #d1c7b7;       /* 撕票線邊框色 */
+    --mj-accent: #7f0019;       /* 復古深紅 */
+    --mj-success: #a4b09c;      /* 鼠尾草綠 */
+    --mj-radius: 2px;
+}
 
-        .container { max-width: 600px; margin: auto; padding: 15px; }
-        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #EEE; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .section-title { font-size: 1rem; font-weight: bold; margin-bottom: 15px; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 12px; }
-        
-        label { display: block; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-label); font-weight: 500; }
-        input, select, textarea { 
-            width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border-color); 
-            font-size: 0.9rem; background: #FDFDFD; color: var(--text-main); transition: border-color 0.2s;
-        }
-        input:focus { outline: none; border-color: var(--primary); background: #FFF; }
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; letter-spacing: 0.02em; }
 
-        .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .col-1 { flex: 1; }
-        .col-3 { flex: 3; }
-        .col-sub { flex: 4 !important; }
-        .col-name { flex: 6 !important; }
-        .col-full { flex: 10 !important; width: 100%; }
+body { 
+    background-color: var(--mj-bg); 
+    color: var(--mj-text-main); 
+    margin: 0; padding: 0;
+    font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
 
-        .select-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-        #subCatPicker, #upSubPicker { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
-        input[readonly] { background-color: #FDFDFD; cursor: pointer; }
+.container { 
+    width: 100%; max-width: 480px; 
+    margin: 0 auto; padding: 15px 15px 100px;
+}
 
-        .btn { border-radius: 8px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-main { background: var(--primary); color: white; padding: 12px; width: 100%; margin-top: 5px; }
-        .btn-sub { background: white; border: 1px solid var(--border-color); color: var(--text-label); padding: 8px; }
-        
-        .item-row { padding: 15px 0; border-bottom: 1px solid #F5F5F5; cursor: pointer; }
-        .item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .item-name { font-size: 0.85rem; font-weight: 600; }
-        .item-sub-label { font-size: 0.85rem; color: var(--primary); padding: 2px 8px; border-radius: 6px; margin-right: -8px; }        
-        .item-meta-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; }
+/* --- SHIFT 分頁樣式 --- */
+.nav-tabs { 
+    display: flex; background: #ffffff; border: 1px solid #e0e0e0; 
+    border-radius: var(--mj-radius); padding: 6px; margin: 15px 15px 25px;
+}
+.tab-btn { 
+    flex: 1; padding: 12px 5px; text-align: center; font-size: 14px; 
+    font-weight: 500; color: #7f7f7f; border: none; background: transparent; 
+    cursor: pointer; transition: 0.2s; border-radius: var(--mj-radius);
+}
+.tab-btn.active { background: #ebebeb; color: #333333; }
 
-        #modalOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; justify-content:center; align-items:center; backdrop-filter: blur(5px); }
-        .modal-content { 
-            background: #FFFFFF !important; padding: 25px 20px; border-radius: 20px; width: 90%; max-width: 400px; 
-            position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
-        }
+/* --- 通用標題樣式 --- */
+.section-title { 
+    font-size: 13px; font-weight: 800; margin-bottom: 18px; 
+    color: var(--mj-text-main); text-transform: uppercase;
+    display: flex; justify-content: flex-start;; align-items: center;
+}
+.section-title::before {
+    content: "■"; margin-right: 8px; font-size: 10px; color: var(--mj-accent);
+}
 
-        .input-row > div { display: flex; flex-direction: column; }
-        .input-row label { margin-bottom: 4px; font-size: 0.75rem; color: var(--text-label); }
+/* --- 1. 呈現區卡片 (今日管理、目前服用、雷達) --- */
+/* 手帳感：虛線、陰影、活頁孔 */
+#tab-home .card, 
+#ongoing-list .item-row,
+#plan-analysis,
+#tab-plan .card:last-child {
+    background: var(--mj-card-bg); 
+    border: 1px dashed var(--mj-border);
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+    position: relative;
+    padding: 20px;
+    margin-bottom: 15px;
+}
 
-        .status-pill { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .s-服用中 { background: var(--primary); color: white; }
-        .s-庫存 { background: #EEECE8; color: #777; }
-        .s-已吃完 { background: #F0F0F0; color: #BBB; text-decoration: line-through; }
+/* 智能導航開瓶的特別加強 */
+#tab-home .card:first-child {
+    border: 1.5px solid var(--mj-accent) !important;
+    background: #fff;
+}
+
+/* --- 2. 輸入與管理區卡片 (入庫、數據、日期斷貨) --- */
+/* 工裝面板感：實線、黑頂、無陰影 */
+#tab-stock .card:first-child,
+#tab-plan .card:first-child,
+#tab-data .card {
+    background: var(--mj-input-bg);
+    border: 1px solid #e0e0e0;
+    border-top: 4px solid #333333; /* 標誌性的工裝黑頂 */
+    box-shadow: none;
+    border-radius: 0;
+    padding: 25px 20px;
+    margin-bottom: 25px;
+}
+
+/* --- 表單控制項 --- */
+label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 5px; display: block; }
+input, select, textarea { 
+    width: 100%; padding: 10px; border-radius: 0; 
+    border: 1px solid #ddd; font-size: 14px; 
+    background: #fdfdfd; outline: none; transition: 0.2s;
+}
+input:focus { border-color: var(--mj-accent); background: #fff; }
+
+.input-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.col-1 { flex: 1; }
+.col-3 { flex: 3; }
+
+/* --- 標籤與狀態 --- */
+.item-row { border-bottom: 1px solid #eee; padding: 15px 0; }
+.item-name { font-size: 15px; font-weight: 700; }
+
+.item-sub-label { 
+    font-size: 10px; color: var(--mj-success); 
+    background: rgba(164, 176, 156, 0.1); 
+    padding: 2px 6px; border: 1px solid var(--mj-success);
+    border-radius: 0; font-weight: 700;
+    display: inline-block; transform: rotate(-2deg); margin-right: 8px;
+}
+
+.status-pill { 
+    font-size: 11px; padding: 2px 8px; border: 1.5px solid; 
+    font-weight: 800; text-transform: uppercase;
+}
+.s-服用中 { color: var(--mj-accent); border-color: var(--mj-accent); transform: rotate(-3deg); }
+.s-庫存 { color: #999; border-color: #ddd; }
+
+/* --- 按鈕 --- */
+.btn-main { 
+    background: #333; color: white; padding: 15px; 
+    border-radius: 0; width: 100%; border: none; font-weight: 700;
+    font-size: 13px; cursor: pointer; text-transform: uppercase;
+}
+.btn-main:active { background: var(--mj-accent); }
+.btn-sub { background: #fff; border: 1px solid #333; color: #333; padding: 10px; font-weight: 700; }
+
+/* 彈窗樣式融合 */
+#modalOverlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display:none; justify-content:center; align-items:center; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; }
+.modal-content { background: #fff; padding: 30px; border: 1px solid #333; border-top: 8px solid #333; width: 90%; max-width: 400px; }
+
     </style>
 </head>
 <body>
@@ -147,7 +215,10 @@
 
     <div id="tab-data" style="display:none;">
         <div class="card">
-            <div class="section-title">數據備份 <span id="lastUpdateText" style="font-size:10px; color:#BBB;"></span></div>
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+    數據備份 
+    <span id="lastUpdateText" style="font-size:10px; color:#BBB; font-weight: normal;"></span>
+</div>
             <textarea id="dataBox" rows="6" style="font-size:12px; font-family:monospace; margin-bottom:15px;"></textarea>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <button class="btn btn-main" style="margin:0" onclick="exportAndCopy()">導出複製</button>
