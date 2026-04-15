@@ -99,8 +99,9 @@
         .col-1 { flex: 1; min-width: 0; } /* 適用於：1:1, 1:1:1, 1:2 中的小項 */
         .col-2 { flex: 2; min-width: 0; } /* 適用於：1:2 中的大項 */
         .col-3 { flex: 3; min-width: 0; } /* 適用於：1:3 或 2:3 的細節調整 */
+        .col-4 { flex: 4; min-width: 0; }
+        .col-7 { flex: 7; min-width: 0; }
         .col-8 { flex: 8; min-width: 0; } /* 適用於：8:2 中的大項 */
-        .col-9 { flex: 9; min-width: 0; } /* 適用於：極端比例中的大項 */
         
         /* 特殊頁面修正 */
         #tab-plan .btn-main {
@@ -217,11 +218,11 @@
                 </div>
             </div>
             <div class="input-row">
-                <div class="col-9">
+                <div class="col-8">
                     <label>品名</label>
                     <input type="text" id="name">
                 </div>
-                <div class="col-1">
+                <div class="col-2">
                    <label>數量</label>
                     <input type="number" id="packCount" value="1">
                 </div>
@@ -476,8 +477,8 @@
                 <div class="col-1"><label>分類</label><select id="upSubCat">${allSubs.map(s => `<option value="${s}" ${i.subCat === s ? 'selected' : ''}>${s}</option>`).join('')}<option value="未分類" ${i.subCat==='未分類'?'selected':''}>未分類</option></select></div>
              </div>
             <div class="input-row">
-               <div class="col-8"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
-               <div class="col-2"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
+               <div class="col-7"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
+               <div class="col-3"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
             </div>
             <div class="input-row">
                 <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
