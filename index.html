@@ -471,11 +471,11 @@
             <div class="section-title">編輯項目</div>
             <div class="input-row">
                 <div class="col-1"><label>模式</label><select id="upMainCat"><option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option><option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option><option value="補充品" ${i.mainCat==='補充品'?'selected':''}>補充品</option></select></div>
-                <div class="col-1"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
-            </div>
-            <div class="input-row">
                 <div class="col-1"><label>分類</label><select id="upSubCat">${allSubs.map(s => `<option value="${s}" ${i.subCat === s ? 'selected' : ''}>${s}</option>`).join('')}<option value="未分類" ${i.subCat==='未分類'?'selected':''}>未分類</option></select></div>
-                <div class="col-1"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
+             </div>
+            <div class="input-row">
+               <div class="col-2"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
+               <div class="col-2"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
             </div>
             <div class="input-row">
                 <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
