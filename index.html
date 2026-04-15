@@ -394,13 +394,32 @@
 
 
     function renderAll() {
-        const ongoing = db.filter(i => i.status === '服用中').sort((a,b) => (a.mainCat==='補充品'?1:-1) || (simulateInventory([a]) - simulateInventory([b])));
+        // 1. 服用中：非補充品按完食排序，補充品墊底
+        const ongoing = db.filter(i => i.status === '服用中').sort((a, b) => {
+            // 如果其中一個是補充品，另一個不是，把補充品往後排
+            if (a.mainCat === '補充品' && b.mainCat !== '補充品') return 1;
+            if (a.mainCat !== '補充品' && b.mainCat === '補充品') return -1;
+            
+            // 如果都不是補充品，才按完食天數排序
+            if (a.mainCat !== '補充品' && b.mainCat !== '補充品') {
+                const simA = simulateInventory([a]);
+                const simB = simulateInventory([b]);
+                const daysA = (typeof simA === 'number') ? simA : simA.days;
+                const daysB = (typeof simB === 'number') ? simB : simB.days;
+                return daysA - daysB;
+            }
+            
+            // 都是補充品的話，就保持原樣（不排序）
+            return 0;
+        });
         document.getElementById('ongoing-list').innerHTML = ongoing.map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">無服用中項目</p>';
 
-        const inventory = db.filter(i => i.status === '庫存').sort((a,b) => (a.mainCat==='補充品'?1:-1) || (new Date(a.expiry) - new Date(b.expiry)));
+        // 2. 庫存：按到期日期排序
+        const inventory = db.filter(i => i.status === '庫存').sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
         document.getElementById('full-inventory').innerHTML = inventory.map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">尚無庫存備品</p>';
 
-        document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).map(i => createItemElement(i)).join('');
+        // 3. 已吃完：按最後更新時間排序
+        document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map(i => createItemElement(i)).join('');
         
         const lastTime = localStorage.getItem('vitaVault_last_action');
         document.getElementById('last-action-stamp').innerText = `LAST RECORDED: ${lastTime || '尚無紀錄'}`;
