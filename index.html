@@ -61,7 +61,6 @@ body {
 
 /* --- 1. 呈現區卡片 (今日管理、目前服用、雷達) --- */
 /* 手帳感：虛線、陰影、活頁孔 */
-#tab-home .card, 
 #ongoing-list .item-row,
 #plan-analysis,
 #tab-plan .card:last-child {
@@ -79,19 +78,6 @@ body {
     background: #fff;
 }
 
-我看到問題了！對比你想要的「排班模式」那張圖（圖一）和你現在生成的實體（圖二），確實變得很亂。
-
-主要問題出在：
-
-內距與間距消失了：元素全部擠在一起。
-
-層次感錯誤：文字的大小和顏色沒有區分，導致視覺焦點模糊。
-
-對齊失效：紅點和標題分太開，資訊排列顯得雜亂。
-
-我們來進行「視覺深度清理」，把那種方正、有呼吸感、帶點冷調灰的中性質感找回來。請將 CSS 中的 .section-title、.card 和 .item-row 部分替換為以下代碼：
-
-CSS
 /* --- 修正後的標題排列 --- */
 .section-title { 
     font-size: 14px; 
@@ -117,16 +103,14 @@ CSS
 
 /* --- 2. 輸入與管理區卡片 (入庫、數據、日期斷貨) --- */
 /* 工裝面板感：實線、黑頂、無陰影 */
-#tab-stock .card:first-child,
-#tab-plan .card:first-child,
-#tab-data .card {
-    background: var(--mj-input-bg);
-    border: 1px solid #e0e0e0;
-    border-top: 4px solid #333333; /* 標誌性的工裝黑頂 */
-    box-shadow: none;
-    border-radius: 0;
-    padding: 25px 20px;
-    margin-bottom: 25px;
+#tab-home .card:first-child,
+#tab-stock .card:first-child {
+    border: 1.5px solid var(--mj-accent) !important;
+    background: #FFFDFB !important; /* 溫潤的暖橘米色 */
+    border-radius: var(--mj-radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 4px 4px 0px rgba(127, 0, 25, 0.05); /* 帶點紅色的陰影 */
 }
 
 /* --- 表單控制項 --- */
@@ -136,11 +120,45 @@ input, select, textarea {
     border: 1px solid #ddd; font-size: 14px; 
     background: #fdfdfd; outline: none; transition: 0.2s;
 }
-input:focus { border-color: var(--mj-accent); background: #fff; }
+.input-row { 
+    display: flex; 
+    gap: 12px; 
+    margin-bottom: 15px; 
+    align-items: flex-end; /* 確保標籤與輸入框底部對齊 */
+}
 
-.input-row { display: flex; gap: 10px; margin-bottom: 15px; }
-.col-1 { flex: 1; }
-.col-3 { flex: 3; }
+/* 強制讓並排的欄位平分空間 */
+.col-1, .col-3, .col-sub, .col-name { 
+    flex: 1; 
+    min-width: 0; /* 防止內容撐開導致跑版 */
+}
+
+        /* 針對「分類」選擇器的特殊處理 */
+.select-wrapper { 
+    position: relative; 
+    width: 100%; 
+}
+
+/* 讓底層的 select 隱形成為一個觸發區域 */
+#subCatPicker, #upSubPicker {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0; /* 隱形但存在 */
+    cursor: pointer;
+}
+
+/* 顯示文字的 input，讓它看起來像可以選也可以打 */
+#subCat, #upSub {
+    pointer-events: none; /* 讓點擊穿透到下面的 select */
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
+}
+
+/* 當需要手動輸入時，切換回可編輯狀態 */
+#subCat:not([readonly]), #upSub:not([readonly]) {
+    pointer-events: auto;
+    background-image: none; /* 輸入時移除箭頭 */
+}
 
 /* --- 標籤與狀態 --- */
 .item-row { 
@@ -243,16 +261,17 @@ input:focus { border-color: var(--mj-accent); background: #fff; }
                 <div class="col-1"><label>包數</label><input type="number" id="packCount" value="1"></div>
             </div>
             <div class="input-row">
-                <div class="col-sub">
-                    <label>分類</label>
-                    <div class="select-wrapper">
-                        <input type="text" id="subCat" placeholder="選取" readonly onclick="updateSubCatDatalist()">
-                        <select id="subCatPicker" onchange="document.getElementById('subCat').value=this.value; if(this.value==='CUSTOM'){document.getElementById('subCat').value='';document.getElementById('subCat').readOnly=false;document.getElementById('subCat').focus();}">
-                        </select>
-                    </div>
-                </div>
-                <div class="col-name"><label>品名</label><input type="text" id="name" placeholder="名稱"></div>
-            </div>
+    <div class="col-1"> <label>分類</label>
+        <div class="select-wrapper">
+            <input type="text" id="subCat" placeholder="選取或輸入" readonly>
+            <select id="subCatPicker" onchange="handleSubCatChange(this)">
+                </select>
+        </div>
+    </div>
+    <div class="col-1"> <label>品名</label>
+        <input type="text" id="name" placeholder="請輸入名稱">
+    </div>
+</div>
             <div class="input-row">
                 <div class="col-1"><label>單包總數</label><input type="number" id="totalQty" value="60"></div>
                 <div class="col-1"><label>每日回數</label><input type="number" id="baseFreq" value="1"></div>
