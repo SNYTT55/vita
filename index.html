@@ -13,8 +13,7 @@
             --mj-text-main: #333333;    
             --mj-text-sub: #7f7f7f;     
             --mj-border: #d1c7b7;       
-            --mj-accent: #7f0019;       
-            --mj-success: #a4b09c;      
+            --mj-accent: #7f0019;          
             --mj-radius: 2px;
         }  
 
@@ -22,8 +21,30 @@
         body { background-color: var(--mj-bg); color: var(--mj-text-main); margin: 0; padding: 0; line-height: 1.5; }
         
         .nav-tabs { display: flex; background: #ffffff; border: 1px solid #e0e0e0; border-radius: var(--mj-radius); padding: 6px; margin: 15px 15px 25px; }
-        .tab-btn { flex: 1; padding: 12px 5px; text-align: center; font-size: 14px; font-weight: 500; color: #7f7f7f; border: none; background: transparent; cursor: pointer; border-radius: var(--mj-radius); }
-        .tab-btn.active { background: #ebebeb; color: #333333; }
+        .tab-btn { 
+    text-transform: uppercase; /* 自動轉大寫 */
+    letter-spacing: 1px;      /* 字母間距拉開一點 */
+    font-size: 12px;           /* 英文可以比中文稍微縮小一號，反而更精緻 */
+    font-weight: 600;
+}
+        .tab-btn.active { 
+    background: transparent; /* 取消原本的灰色背景 */
+    color: var(--mj-accent); /* 文字轉紅 */
+    font-weight: 800;
+    border-bottom: 3px solid var(--mj-accent); /* 增加底線 */
+    border-radius: 0; /* 底線風格通常不建議圓角 */
+}
+        .tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%); /* 居中對齊 */
+    width: 12px;                  /* 固定短小的一條，很有細節感 */
+    height: 2px;
+    background: var(--mj-accent);
+    border-radius: 10px;
+}
         
         .section-title { font-size: 14px; font-weight: 700; margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: "■"; font-size: 10px; color: var(--mj-accent); }
@@ -64,16 +85,16 @@
 <body>
 
 <nav class="nav-tabs">
-    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">今日</div>
-    <div class="tab-btn" id="btn-stock" onclick="switchTab('stock')">庫存</div>
-    <div class="tab-btn" id="btn-plan" onclick="switchTab('plan')">採買</div>
-    <div class="tab-btn" id="btn-data" onclick="switchTab('data')">數據</div>
+    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">MANAGE</div>
+    <div class="tab-btn" id="btn-stock" onclick="switchTab('stock')">STOCK</div>
+    <div class="tab-btn" id="btn-plan" onclick="switchTab('plan')">PURCHASE</div>
+    <div class="tab-btn" id="btn-data" onclick="switchTab('data')">DATA</div>
 </nav>
 
 <div class="container">
     <div id="tab-home">
         <div class="card">
-            <div class="section-title">智能導航開瓶</div>
+            <div class="section-title">智能推薦</div>
             <div class="input-row">
                 <div class="col-1"><label>服用模式</label>
                     <select id="dispMain" onchange="updateDispOptions()">
