@@ -226,14 +226,22 @@
 
     function createItemElement(item) {
         const isFinished = item.status === '已吃完';
+        const isStock = item.status === '庫存';
         let info = "";
+        
         if (!isFinished) {
             const diff = Math.ceil((new Date(item.expiry) - new Date()) / 86400000);
-            if (item.mainCat === '補充品') info = `效期剩 ${diff} 天`;
-            else {
+            if (item.mainCat === '補充品') {
+                info = `效期剩 ${diff} 天`;
+            } else if (isStock) {
+                // 庫存區不顯示完食預估，僅顯示效期倒數作為中性參考
+                info = `效期剩 ${diff} 天`;
+            } else {
+                // 服用中才顯示完食預估
                 const sim = simulateInventory([item]);
                 const days = (typeof sim === 'number') ? sim : sim.days;
-                const finishDate = new Date(); finishDate.setDate(finishDate.getDate() + days);
+                const finishDate = new Date(); 
+                finishDate.setDate(finishDate.getDate() + days);
                 info = `預計 <b>${finishDate.getMonth()+1}/${finishDate.getDate()}</b> 完食`;
             }
         } else {
@@ -241,7 +249,8 @@
         }
 
         if (isFinished) {
-            return `<div class="minimal-row" onclick="openEdit(${item.id})" style="padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; opacity: 0.6;">
+            return `
+                <div class="minimal-row" onclick="openEdit(${item.id})" style="padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; opacity: 0.6;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <span style="font-size: 10px; color: #999; border: 1px solid #ddd; padding: 1px 4px; border-radius: 2px; margin-right: 6px;">${item.subCat}</span>
@@ -265,16 +274,32 @@
                 </div>
             </div>`;
     }
+    
 
     function renderAll() {
-        document.getElementById('ongoing-list').innerHTML = db.filter(i => i.status === '服用中').map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">無服用中項目</p>';
-        document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">尚無庫存備品</p>';
+        // 1. 服用中：快完食的在前，補充品排最後
+        const ongoing = db.filter(i => i.status === '服用中').sort((a, b) => {
+            if (a.mainCat === '補充品') return 1;
+            if (b.mainCat === '補充品') return -1;
+            return simulateInventory([a]) - simulateInventory([b]);
+        });
+        document.getElementById('ongoing-list').innerHTML = ongoing.map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">無服用中項目</p>';
+
+        // 2. 庫存區：快過期的在前，補充品排最後
+        const inventory = db.filter(i => i.status === '庫存').sort((a, b) => {
+            if (a.mainCat === '補充品') return 1;
+            if (b.mainCat === '補充品') return -1;
+            return new Date(a.expiry) - new Date(b.expiry);
+        });
+        document.getElementById('full-inventory').innerHTML = inventory.map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">尚無庫存備品</p>';
+
+        // 3. 完食紀錄
         document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).map(i => createItemElement(i)).join('');
         
+        // 更新時間戳記與其他 UI
         const lastTime = localStorage.getItem('vitaVault_last_action');
         const stamp = document.getElementById('last-action-stamp');
         if (stamp) stamp.innerText = `LAST RECORDED: ${lastTime || '尚無紀錄'}`;
-
         updateDispOptions(); 
         renderAnalysis(false);
     }
