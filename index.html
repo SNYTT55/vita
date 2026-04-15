@@ -46,9 +46,14 @@ body {
 
 /* --- 通用標題樣式 --- */
 .section-title { 
-    font-size: 13px; font-weight: 800; margin-bottom: 18px; 
-    color: var(--mj-text-main); text-transform: uppercase;
-    display: flex; justify-content: flex-start;; align-items: center;
+    font-size: 14px; 
+    font-weight: 700; 
+    margin-bottom: 20px; 
+    color: #333; 
+    display: flex; 
+    justify-content: flex-start; /* 確保文字跟著紅點 */
+    align-items: center;
+    gap: 8px; /* 設定紅點與文字的間距 */
 }
 .section-title::before {
     content: "■"; margin-right: 8px; font-size: 10px; color: var(--mj-accent);
@@ -102,23 +107,48 @@ input:focus { border-color: var(--mj-accent); background: #fff; }
 .col-3 { flex: 3; }
 
 /* --- 標籤與狀態 --- */
-.item-row { border-bottom: 1px solid #eee; padding: 15px 0; }
-.item-name { font-size: 15px; font-weight: 700; }
+.item-row { 
+    padding: 16px 0; 
+    border-bottom: 1px solid #f0f0f0; 
+    display: flex;
+    flex-direction: column; /* 讓資訊垂直排列，不要全部塞一排 */
+    gap: 8px; 
+}
+.item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap; /* 防止手機版擠壓變形 */
+}
 
+.item-name { 
+    font-size: 15px; 
+    font-weight: 600; 
+    color: #333; 
+    margin: 0;
+}
+.item-meta-row { 
+    font-size: 12px; 
+    color: #999; 
+    display: flex; 
+    justify-content: space-between; /* 讓數量與效期分開在兩側 */
+}
 .item-sub-label { 
-    font-size: 10px; color: var(--mj-success); 
-    background: rgba(164, 176, 156, 0.1); 
-    padding: 2px 6px; border: 1px solid var(--mj-success);
-    border-radius: 0; font-weight: 700;
-    display: inline-block; transform: rotate(-2deg); margin-right: 8px;
+    font-size: 11px; 
+    color: #888; 
+    background: #f5f5f5; 
+    padding: 2px 6px; 
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    transform: none; /* 移除傾斜，回歸中性專業感 */
 }
 
 .status-pill { 
     font-size: 11px; padding: 2px 8px; border: 1.5px solid; 
-    font-weight: 800; text-transform: uppercase;
+    font-weight: 800; transform: none;
 }
-.s-服用中 { color: var(--mj-accent); border-color: var(--mj-accent); transform: rotate(-3deg); }
-.s-庫存 { color: #999; border-color: #ddd; }
+.s-服用中 { color: var(--mj-accent); border-color: var(--mj-accent); background: #fff; }
+.s-庫存 { color: #999; border-color: #ddd; background: #fff; }
 
 /* --- 按鈕 --- */
 .btn-main { 
