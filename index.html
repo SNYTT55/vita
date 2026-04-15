@@ -67,6 +67,22 @@
             border-radius: 10px;
         }
 
+        /* 專門修正 Plan 頁面分析按鈕的垂直居中與高度 */
+        #tab-plan .btn-main {
+            height: 42px;         /* 與左側 input 鎖定同樣高度 */
+            line-height: 42px;    /* 讓文字在 42px 內垂直居中 */
+            padding: 0 16px;      /* 左右留白，上下設為 0 */
+            display: inline-flex; /* 使用 flex 確保內容置中 */
+            align-items: center;
+            justify-content: center;
+            margin: 0;            /* 移除外邊距干擾 */
+        }
+        
+        /* 確保 Plan 頁面的 input-row 是以中心對齊 */
+        #tab-plan .input-row {
+            align-items: center !important; 
+        }
+
         #dataBox {
             height: auto; /* 解除 42px 的鎖定 */
             min-height: 120px; /* 設定你想要的最小高度 */
@@ -206,11 +222,16 @@ select {
     <div id="tab-plan" style="display:none;">
         <div class="card">
             <div class="section-title">日期斷貨預估</div>
-            <div class="input-row">
-                <div class="col-2"><input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD"></div>
-                <div class="col-1"><button class="btn-main" style="padding:12px" onclick="renderAnalysis(true)">分析</button></div>
+            <div class="input-row" style="display: flex; gap: 12px; align-items: center;">
+                <div class="col-2">
+                    <input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD">
+                </div>
+                <div class="col-1">
+                    <button class="btn-main" onclick="renderAnalysis(true)">分析</button>
+                </div>
             </div>
             <div id="deadline-result"></div>
+        </div>
         </div>
         <div class="card"><div class="section-title">90 天補貨雷達</div><div id="plan-analysis"></div></div>
     </div>
