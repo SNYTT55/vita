@@ -118,7 +118,6 @@
             line-height: 1.4;
             padding: 12px;
             background: #f9f9f9;
-            border: 1px solid var(--mj-border);
             font-family: monospace;
         }
 
@@ -348,13 +347,35 @@
         
         if (!isFinished) {
             const diff = Math.ceil((new Date(item.expiry) - new Date()) / 86400000);
+            if (item.mainCat === '補充品') {
+                info = `效期剩 ${diff} 天`;
+            } else if (isStock) {
+                // 庫存區不顯示完食預估，僅顯示效期倒數作為中性參考
+                info = `效期剩 ${diff} 天`;
+            } else {
+                // 服用中才顯示完食預估
+                const sim = simulateInventory([item]);
+                const days = (typeof sim === 'number') ? sim : sim.days;
+                const finishDate = new Date(); 
+                finishDate.setDate(finishDate.getDate() + days);
+                info = `預計 <b>${finishDate.getMonth()+1}/${finishDate.getDate()}</b> 完食`;
+            }
+        } else {
+            info = `完食於: ${item.updatedAt ? item.updatedAt.split(' ')[0] : '---'}`;
+        }
+
+        if (!isFinished) {
+            const diff = Math.ceil((new Date(item.expiry) - new Date()) / 86400000);
             const colorClass = diff > 180 ? 'expiry-safe' : (diff < 30 ? 'expiry-warning' : '');
+
             if (item.mainCat === '補充品' || isStock) {
+                // 這裡加入了綠色邏輯：超過 180 天會套用 expiry-safe
                 info = `<span class="${colorClass}">效期剩 ${diff} 天</span>`;
             } else {
                 const sim = simulateInventory([item]);
                 const days = (typeof sim === 'number') ? sim : sim.days;
-                const finishDate = new Date(); finishDate.setDate(finishDate.getDate() + days);
+                const finishDate = new Date(); 
+                finishDate.setDate(finishDate.getDate() + days);
                 info = `預計 <b>${finishDate.getMonth()+1}/${finishDate.getDate()}</b> 完食`;
             }
         } else {
@@ -362,14 +383,14 @@
         }
 
         return `
-            <div class="minimal-row" onclick="openEdit(${item.id})" style="padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; ${isFinished?'opacity:0.6':''}">
+            <div class="minimal-row" onclick="openEdit(${item.id})" style="padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer;">
                 <div class="item-header" style="margin-bottom: 4px;">
                     <span class="status-pill s-${item.status}">${item.status}</span>
                     <span class="item-sub-label">${item.subCat}</span>
-                    <span class="item-name">${item.name}</span>
+                    <span class="item-name" style="font-size: 15px; margin-left: 4px;">${item.name}</span>
                 </div>
-                <div class="item-meta-row">
-                    <span class="item-qty-tag">${item.totalQty} 顆 · ${info}</span>
+                <div class="item-meta-row" style="padding-top: 0; font-size: 12px; color: #888;">
+                    <span class="item-qty-tag" style="font-weight: 400;">${item.totalQty} 顆 · ${info}</span>
                     <span style="font-size:11px; opacity: 0.7;">EXP: ${item.expiry}</span>
                 </div>
             </div>`;
