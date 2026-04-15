@@ -66,7 +66,16 @@
             background: var(--mj-accent);
             border-radius: 10px;
         }
-        
+
+        #dataBox {
+            height: auto; /* 解除 42px 的鎖定 */
+            min-height: 120px; /* 設定你想要的最小高度 */
+            line-height: 1.4; /* 讓文字排版比較好讀 */
+            padding: 12px;
+            background: #f9f9f9;
+            border: 1px solid var(--mj-border);
+            font-family: monospace; /* 讓代碼看起來更整齊 */
+        }
         .section-title { font-size: 14px; font-weight: 700; margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: "■"; font-size: 10px; color: var(--mj-accent); }
         
@@ -460,9 +469,9 @@ select {
                 <div class="col-1">
                     <label>狀態</label>
                     <select id="upStatus">
-                        <option value="庫存" ${i.status==='庫存'?'selected':''}>STOCK</option>
-                        <option value="服用中" ${i.status==='服用中'?'selected':''}>ACTIVE</option>
-                        <option value="已吃完" ${i.status==='已吃完'?'selected':''}>FINISHED</option>
+                        <option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option>
+                        <option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option>
+                        <option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option>
                     </select>
                 </div>
             </div>
