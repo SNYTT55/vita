@@ -79,6 +79,42 @@ body {
     background: #fff;
 }
 
+我看到問題了！對比你想要的「排班模式」那張圖（圖一）和你現在生成的實體（圖二），確實變得很亂。
+
+主要問題出在：
+
+內距與間距消失了：元素全部擠在一起。
+
+層次感錯誤：文字的大小和顏色沒有區分，導致視覺焦點模糊。
+
+對齊失效：紅點和標題分太開，資訊排列顯得雜亂。
+
+我們來進行「視覺深度清理」，把那種方正、有呼吸感、帶點冷調灰的中性質感找回來。請將 CSS 中的 .section-title、.card 和 .item-row 部分替換為以下代碼：
+
+CSS
+/* --- 修正後的標題排列 --- */
+.section-title { 
+    font-size: 14px; 
+    font-weight: 700; 
+    margin-bottom: 20px; 
+    color: #333; 
+    display: flex; 
+    justify-content: flex-start; /* 確保文字跟著紅點 */
+    align-items: center;
+    gap: 8px; /* 設定紅點與文字的間距 */
+}
+
+/* --- 修正後的卡片：找回圖一的層次感 --- */
+.card { 
+    background: #ffffff; 
+    border: 1px solid #e0e0e0; /* 統一用淺灰實線，不要虛線 */
+    border-radius: 2px; 
+    padding: 24px; /* 增加內距，讓內容呼吸 */
+    margin-bottom: 24px; 
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.02); /* 極輕微的硬陰影 */
+    position: relative;
+}
+
 /* --- 2. 輸入與管理區卡片 (入庫、數據、日期斷貨) --- */
 /* 工裝面板感：實線、黑頂、無陰影 */
 #tab-stock .card:first-child,
@@ -152,7 +188,7 @@ input:focus { border-color: var(--mj-accent); background: #fff; }
 
 /* --- 按鈕 --- */
 .btn-main { 
-    background: #333; color: white; padding: 15px; 
+    background: var(--mj-accent); color: white; padding: 15px; 
     border-radius: 0; width: 100%; border: none; font-weight: 700;
     font-size: 13px; cursor: pointer; text-transform: uppercase;
 }
