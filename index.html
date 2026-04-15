@@ -201,42 +201,48 @@
     </div>
 
     <div id="tab-stock" style="display:none;">
-        <div class="card">
-            <div class="section-title">快速入庫備品</div>
-            <div class="input-row">
-                <div class="col-1">
-                    <label>模式</label>
-                    <select id="mainCat">
-                        <option value="基礎營養">基礎營養</option>
-                        <option value="生理期">生理期</option>
-                        <option value="補充品">補充品</option>
-                    </select>
-                </div>
+    <div class="card">
+        <div class="section-title">快速入庫備品</div>
+        
+        <div class="input-row">
+            <div class="col-1">
+                <label>模式</label>
+                <select id="mainCat">
+                    <option value="基礎營養">基礎營養</option>
+                    <option value="生理期">生理期</option>
+                    <option value="補充品">補充品</option>
+                </select>
+            </div>
+            <div class="col-1">
                 <label>分類 (選取或手寫)</label>
-                    <select id="subCatPicker" onchange="handleSubPicker(this)"></select>
-                    <input type="text" id="subCat" style="margin-top:5px; display:none;">
-                </div>
+                <select id="subCatPicker" onchange="handleSubPicker(this)"></select>
+                <input type="text" id="subCat" style="margin-top:5px; display:none;">
             </div>
-            <div class="input-row">
-                <div class="col-8">
-                    <label>品名</label>
-                    <input type="text" id="name">
-                </div>
-                <div class="col-2">
-                   <label>數量</label>
-                    <input type="number" id="packCount" value="1">
-                </div>
+        </div>
+
+        <div class="input-row">
+            <div class="col-8">
+                <label>品名</label>
+                <input type="text" id="name">
             </div>
-            <div class="input-row">
-                <div class="col-1"><label>單包顆數</label><input type="number" id="totalQty" value="60"></div>
-                <div class="col-1"><label>日回數</label><input type="number" id="baseFreq" value="1"></div>
-                <div class="col-1"><label>回顆數</label><input type="number" id="baseDose" value="1"></div>
+            <div class="col-2">
+                <label>數量</label>
+                <input type="number" id="packCount" value="1">
             </div>
-            <div class="input-row">
-                <div class="col-1"><label>到期日期</label><input type="text" class="date-input" id="expiry" placeholder="YYYY/MM/DD"></div>
-                <div class="col-1"><label>購買日期</label><input type="text" class="date-input" id="buyDate" placeholder="YYYY/MM/DD"></div>
-            </div>
-            <button class="btn-main" onclick="batchAdd()">批次登記入庫</button>
+        </div>
+
+        <div class="input-row">
+            <div class="col-1"><label>單包顆數</label><input type="number" id="totalQty" value="60"></div>
+            <div class="col-1"><label>日回數</label><input type="number" id="baseFreq" value="1"></div>
+            <div class="col-1"><label>回顆數</label><input type="number" id="baseDose" value="1"></div>
+        </div>
+
+        <div class="input-row">
+            <div class="col-1"><label>到期日期</label><input type="text" class="date-input" id="expiry" placeholder="YYYY/MM/DD"></div>
+            <div class="col-1"><label>購買日期</label><input type="text" class="date-input" id="buyDate" placeholder="YYYY/MM/DD"></div>
+        </div>
+
+        <button class="btn-main" onclick="batchAdd()">批次登記入庫</button>
         </div>
         <div class="card">
             <div class="section-title">所有備品庫存</div>
