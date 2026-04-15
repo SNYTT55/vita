@@ -308,9 +308,9 @@
         let allSubs = [...new Set(db.map(i => i.subCat))].filter(s => s && s !== '未分類').sort();
         const picker = document.getElementById('subCatPicker');
         if (picker) {
-            picker.innerHTML = '<option value="">🔻選擇現有分類</option>' + 
+            picker.innerHTML = '<option value="">✔︎選擇分類</option>' + 
                 allSubs.map(s => `<option value="${s}">${s}</option>`).join('') + 
-                '<option value="CUSTOM">📝手寫新分類...</option>';
+                '<option value="CUSTOM">⏺︎輸入分類</option>';
         }
     }
 
@@ -475,7 +475,7 @@
              </div>
             <div class="input-row">
                <div class="col-2"><label>品名</label><input type="text" id="upName" value="${i.name}"></div>
-               <div class="col-2"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
+               <div class="col-1"><label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select></div>
             </div>
             <div class="input-row">
                 <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
