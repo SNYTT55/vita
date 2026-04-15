@@ -519,9 +519,16 @@ select {
                     <label>日回數</label>
                     <input type="number" id="upFreq" value="${i.freq}">
                 </div>
+            </div>
+    
+            <div class="input-row" style="margin-bottom: 20px;">
                 <div class="col-1">
-                    <label>回顆數</label>
-                    <input type="number" id="upDose" value="${i.dose}">
+                    <label>到期日期</label>
+                    <input type="text" id="upExp" value="${i.expDate || ''}" placeholder="YYYY/MM/DD">
+                </div>
+                <div class="col-1">
+                    <label>購買日期</label>
+                    <input type="text" id="upBuy" value="${i.buyDate || ''}" placeholder="YYYY/MM/DD">
                 </div>
             </div>
             
@@ -530,18 +537,21 @@ select {
         `;
     }
 
-function updateItem(id) {
-        const i = db.find(x => x.id === id);
-        i.mainCat = document.getElementById('upMainCat').value;
-        i.subCat = document.getElementById('upSubCat').value;
-        i.status = document.getElementById('upStatus').value;
-        i.name = document.getElementById('upName').value;
-        i.totalQty = parseInt(document.getElementById('upQty').value);
-        i.freq = document.getElementById('upFreq').value;
-        i.dose = document.getElementById('upDose').value;
-        i.updatedAt = new Date().toLocaleString();
+    function updateItem(id) {
+        const item = db.find(x => x.id === id);
+        item.mainCat = document.getElementById('upMainCat').value;
+        item.status = document.getElementById('upStatus').value;
+        item.subCat = document.getElementById('upSubCat').value;
+        item.name = document.getElementById('upName').value;
+        item.totalQty = parseInt(document.getElementById('upQty').value);
+        item.freq = document.getElementById('upFreq').value;
+        item.dose = document.getElementById('upDose').value;
+        item.expDate = document.getElementById('upExp').value; // 新增
+        item.buyDate = document.getElementById('upBuy').value; // 新增
+        item.updatedAt = new Date().toLocaleString();
         save(); 
         closeModal();
+        renderAll();
     }
 
     function quickOpen(id) { const i = db.find(x => x.id === id); i.status = '服用中'; i.updatedAt = new Date().toLocaleString(); save(); }
