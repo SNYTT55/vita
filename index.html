@@ -35,7 +35,7 @@ body {
 .section-title::before { content: "■"; font-size: 10px; color: var(--mj-accent); }
 
 /* --- 卡片 --- */
-.card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 2px; padding: 24px; margin-bottom: 24px; position: relative; }
+.card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 2px; padding: 24px; margin-bottom: 24px; box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.02); position: relative; }
 
 /* 服用中與雷達：手帳感虛線 */
 #ongoing-list .item-row, #plan-analysis .analysis-item, #deadline-result .analysis-item {
@@ -71,7 +71,7 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 
 .s-庫存 { color: #999; border-color: #ddd; background: #fff; }
 
 .btn-main { background: var(--mj-accent); color: white; padding: 15px; border: none; font-weight: 700; width: 100%; cursor: pointer; }
-.btn-sub { background: #fff; border: 1px solid #333; color: #333; padding: 10px; font-weight: 700; }
+.btn-sub { background: #fff; border: 1px solid #333; color: #333; padding: 10px; font-weight: 700; cursor: pointer; }
 
 #modalOverlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display:none; justify-content:center; align-items:center; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; }
 .modal-content { background: #fff; padding: 30px; border-top: 8px solid #333; width: 90%; max-width: 400px; }
@@ -181,6 +181,13 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 
         renderAll();
     }
 
+    // 解析日期字串 (YYYY/MM/DD)
+    function parseDate(str) {
+        if (!str || str.length < 10) return null;
+        const p = str.split('/');
+        return new Date(p[0], p[1]-1, p[2]);
+    }
+
     // 模擬庫存核心邏輯
     function simulateDays(itemList) {
         if (!itemList.length) return 0;
@@ -243,8 +250,15 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 
     }
 
     function renderAnalysis(isManual = false) {
-        const targetDays = isManual ? Math.ceil((new Date(document.getElementById('checkDate').value) - new Date()) / 86400000) : 90;
-        if (isNaN(targetDays) || targetDays <= 0) return;
+        let targetDays = 90;
+        if (isManual) {
+            const dateStr = document.getElementById('checkDate').value;
+            const targetDate = parseDate(dateStr);
+            if (!targetDate) return alert("日期格式不對 (YYYY/MM/DD)");
+            targetDays = Math.ceil((targetDate - new Date().setHours(0,0,0,0)) / 86400000);
+        }
+
+        if (targetDays <= 0) return alert("日期必須是未來");
 
         const groups = {};
         db.filter(i => i.status !== '已吃完').forEach(i => {
@@ -265,7 +279,7 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 
                         <b>${sub}</b>
                         <span class="status-pill s-服用中">需補 ${gap} 顆</span>
                     </div>
-                    <div style="font-size:11px; color:#999; margin-top:8px;">目前庫存僅能支撐 ${currentDays} 天</div>
+                    <div style="font-size:11px; color:#999; margin-top:8px;">目前庫存支撐 ${currentDays} 天</div>
                 </div>`;
             }
         }
@@ -335,10 +349,33 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 
     }
 
     function renderDispRec() {
-        const mode = document.getElementById('dispMain').value, sub = document.getElementById('dispSub').value, res = document.getElementById('disp-result');
-        const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存').sort((a,b) => new Date(a.expiry)-new Date(b.expiry))[0];
-        if(item) res.innerHTML = `<div style="margin-top:15px; border:1px dashed var(--mj-accent); padding:15px; background:#fff;">${createItemUI(item)}<button class="btn-main" style="margin-top:10px" onclick="quickOpen(${item.id})">確認開啟</button></div>`;
-        else res.innerHTML = '<div style="padding:20px; color:#BBB; text-align:center;">無庫存</div>';
+        const mode = document.getElementById('dispMain').value, 
+              sub = document.getElementById('dispSub').value, 
+              res = document.getElementById('disp-result');
+              
+        const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存')
+                       .sort((a,b) => new Date(a.expiry) - new Date(b.expiry))[0];
+
+        if(item) {
+            res.innerHTML = `
+                <div style="margin-top:15px; border:2px solid var(--mj-accent); padding:5px; background:#fff; border-radius:var(--mj-radius);">
+                    <div style="font-size:10px; background:var(--mj-accent); color:white; padding:2px 8px; display:inline-block; margin-bottom:-10px; position:relative; z-index:5;">建議開瓶</div>
+                    <div class="item-row" style="border:none; background:transparent; box-shadow:none; margin-bottom:0;">
+                        <div class="item-header">
+                            <span class="status-pill s-庫存" style="background:var(--mj-bg)">最舊備品</span>
+                            <span class="item-sub-label">${item.subCat}</span>
+                            <span class="item-name">${item.name}</span>
+                        </div>
+                        <div class="item-meta-row">
+                            <span>目前庫存：${item.totalQty} 顆</span>
+                            <span style="color:red; font-weight:bold;">效期至：${item.expiry}</span>
+                        </div>
+                    </div>
+                    <button class="btn-main" style="margin-top:5px; border-radius:0;" onclick="quickOpen(${item.id})">確認開啟這瓶</button>
+                </div>`;
+        } else {
+            res.innerHTML = '<div style="padding:20px; color:#BBB; font-size:12px; text-align:center;">該分類目前無庫存備品</div>';
+        }
     }
 
     function quickOpen(id) { const i = db.find(x => x.id === id); i.status = '服用中'; save(); }
