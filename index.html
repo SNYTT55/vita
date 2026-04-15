@@ -525,21 +525,16 @@ select {
                         <option value="未分類" ${i.subCat==='未分類'?'selected':''}>未分類</option>
                     </select>
                 </div>
-                <div class="col-1">
+                   <div class="col-1">
                     <label>品名</label>
                     <input type="text" id="upName" value="${i.name}">
                 </div>
             </div>
             
             <div class="input-row" style="margin-bottom: 20px;">
-                <div class="col-1">
-                    <label>剩餘顆數</label>
-                    <input type="number" id="upQty" value="${i.totalQty}">
-                </div>
-                <div class="col-1">
-                    <label>日回數</label>
-                    <input type="number" id="upFreq" value="${i.freq}">
-                </div>
+                <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
+                <div class="col-1"><label>日回數</label><input type="number" id="upFreq" value="${i.freq}"></div>
+                <div class="col-1"><label>回顆數</label><input type="number" id="upDose" value="${i.dose}"></div>
             </div>
     
             <div class="input-row" style="margin-bottom: 20px;">
