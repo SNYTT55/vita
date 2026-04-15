@@ -35,8 +35,11 @@ body {
 .section-title::before { content: "■"; font-size: 10px; color: var(--mj-accent); }
 
 /* --- 卡片 --- */
-.card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 2px; padding: 24px; margin-bottom: 24px; box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.02); position: relative; }
-
+.card { 
+    background: #ffffff; border: 1px solid #e0e0e0; border-radius: 2px; 
+    padding: 24px; margin-bottom: 24px; box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.02); 
+    position: relative;
+}
 /* 服用中與雷達：手帳感虛線 */
 #ongoing-list .item-row, #plan-analysis .analysis-item, #deadline-result .analysis-item {
     background: var(--mj-card-bg); border: 1px dashed var(--mj-border); box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05); padding: 15px; margin-bottom: 12px;
@@ -349,34 +352,13 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 
     }
 
     function renderDispRec() {
-        const mode = document.getElementById('dispMain').value, 
-              sub = document.getElementById('dispSub').value, 
-              res = document.getElementById('disp-result');
-              
-        const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存')
-                       .sort((a,b) => new Date(a.expiry) - new Date(b.expiry))[0];
-
-        if(item) {
-            res.innerHTML = `
-                <div style="margin-top:15px; border:2px solid var(--mj-accent); padding:5px; background:#fff; border-radius:var(--mj-radius);">
-                    <div style="font-size:10px; background:var(--mj-accent); color:white; padding:2px 8px; display:inline-block; margin-bottom:-10px; position:relative; z-index:5;">建議開瓶</div>
-                    <div class="item-row" style="border:none; background:transparent; box-shadow:none; margin-bottom:0;">
-                        <div class="item-header">
-                            <span class="status-pill s-庫存" style="background:var(--mj-bg)">最舊備品</span>
-                            <span class="item-sub-label">${item.subCat}</span>
-                            <span class="item-name">${item.name}</span>
-                        </div>
-                        <div class="item-meta-row">
-                            <span>目前庫存：${item.totalQty} 顆</span>
-                            <span style="color:red; font-weight:bold;">效期至：${item.expiry}</span>
-                        </div>
-                    </div>
-                    <button class="btn-main" style="margin-top:5px; border-radius:0;" onclick="quickOpen(${item.id})">確認開啟這瓶</button>
-                </div>`;
-        } else {
-            res.innerHTML = '<div style="padding:20px; color:#BBB; font-size:12px; text-align:center;">該分類目前無庫存備品</div>';
-        }
+        const mode = document.getElementById('dispMain').value, sub = document.getElementById('dispSub').value, res = document.getElementById('disp-result');
+        const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存').sort((a,b) => new Date(a.expiry)-new Date(b.expiry))[0];
+        if(item) res.innerHTML = `<div style="margin-top:15px; border:1px dashed var(--mj-accent); padding:15px; background:#fff;">${createItemUI(item)}<button class="btn-main" style="margin-top:10px" onclick="quickOpen(${item.id})">確認開啟</button></div>`;
+        else res.innerHTML = '<div style="padding:20px; color:#BBB; text-align:center;">無庫存</div>';
     }
+    
+
 
     function quickOpen(id) { const i = db.find(x => x.id === id); i.status = '服用中'; save(); }
     function deleteItem(id) { if(confirm("確定刪除？")) { db = db.filter(x => x.id !== id); save(); closeModal(); } }
