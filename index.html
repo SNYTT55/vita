@@ -86,17 +86,30 @@
 
         label { font-size: 10px; font-weight: 700; color: #999; margin-bottom: 5px; display: block; }        
         input, select, textarea { 
-            width: 100%; 
-            height: 42px; /* 固定高度 */
-            padding: 0 12px; 
-            border-radius: 0; 
-            border: 1px solid #ddd; 
-            font-size: 14px; 
-            background: #fff; 
-            outline: none; 
-            display: block;
-            appearance: none; /* 移除系統樣式影響 */
-        }
+    width: 100%; 
+    height: 42px; /* 固定高度，對齊核心 */
+    padding: 0 12px; 
+    border-radius: 0; 
+    border: 1px solid #ddd; 
+    font-size: 14px; 
+    background: #fff; 
+    outline: none; 
+    display: block;
+    color: var(--mj-text-main) !important; /* 強制文字為深灰色，殺掉藍色 */
+    appearance: none; /* 移除系統預設外觀（包含那個藍色與預設箭頭） */
+    -webkit-appearance: none;
+    line-height: 42px; /* 確保文字垂直置中 */
+}
+
+/* 針對下拉選單的特殊背景處理，避免被 iOS 轉成藍色文字 */
+select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23999' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 8px;
+    padding-right: 30px; /* 給小箭頭一點空間 */
+}
         .input-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: flex-end; }
         .col-1 { flex: 1; min-width: 0; }
         .col-2 { flex: 2; }
@@ -429,33 +442,15 @@
         document.getElementById('modalOverlay').style.display = 'flex';
         document.getElementById('modalUI').innerHTML = `
             <div class="section-title">編輯項目</div>
-            <label>狀態</label>
-            <select id="upStatus" style="margin-bottom:15px">
-                <option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option>
-                <option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option>
-                <option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option>
-            </select>
-            
-            <label>品名</label>
-            <input type="text" id="upName" value="${i.name}" style="margin-bottom:15px">
-            
-            <div class="input-row" style="margin-bottom:20px">
-                <div>
-                    <label>剩餘顆數</label>
-                    <input type="number" id="upQty" value="${i.totalQty}">
-                </div>
-                <div>
-                    <label>日回 / 回顆</label>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                        <input type="number" id="upFreq" value="${i.freq}">
-                        <input type="number" id="upDose" value="${i.dose}">
-                    </div>
-                </div>
+            <div style="font-size: 10px; color: #aaa; margin: -15px 0 15px 0;">最後紀錄：${i.updatedAt || '無'}</div>
+            <label>狀態</label><select id="upStatus"><option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option><option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option><option value="已吃完" ${i.status==='已吃完'?'selected':''}>已吃完</option></select>
+            <label style="margin-top:10px">品名</label><input type="text" id="upName" value="${i.name}">
+            <div class="input-row" style="margin-top:10px">
+                <div class="col-1"><label>剩餘顆數</label><input type="number" id="upQty" value="${i.totalQty}"></div>
+                <div class="col-1"><label>日回/回顆</label><div style="display:flex;gap:5px;"><input type="number" id="upFreq" value="${i.freq}"><input type="number" id="upDose" value="${i.dose}"></div></div>
             </div>
-            
             <button class="btn-main" onclick="updateItem(${id})">儲存更新</button>
-            <button onclick="deleteItem(${id})" style="width:100%; margin-top:20px; background:none; border:none; color:var(--mj-accent); font-size:12px; text-decoration:underline; cursor:pointer">⚠️ 刪除此筆資料</button>
-        `;
+            <button onclick="deleteItem(${id})" style="width:100%;margin-top:20px;background:none;border:none;color:var(--mj-accent);font-size:12px;text-decoration:underline;cursor:pointer">⚠️ 刪除此筆資料</button>`;
     }
 
     function updateItem(id) {
