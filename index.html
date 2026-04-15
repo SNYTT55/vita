@@ -139,13 +139,15 @@
 
     <div id="tab-data" style="display:none;">
         <div class="card">
-            <div class="section-title">數據備份</div>
-            <textarea id="dataBox" rows="6" style="font-size:11px; margin-bottom:15px; background:#F9F9F9; border:none; width:100%"></textarea>
-            
-            <div id="last-action-stamp" style="font-size: 10px; color: #999; margin-bottom: 15px; font-family: monospace;">
-                LAST RECORDED: ---
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+                <div class="section-title" style="margin-bottom: 0;">數據備份</div>
+                <div id="last-action-stamp" style="font-size: 10px; color: #999; font-family: monospace; text-align: right;">
+                    LAST RECORDED: ---
+                </div>
             </div>
 
+            <textarea id="dataBox" rows="6" style="font-size:11px; margin-bottom:15px; background:#F9F9F9; border:none; width:100%"></textarea>
+            
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <button class="btn-main" onclick="exportAndCopy()">導出複製</button>
                 <button class="btn-main" style="background:#333" onclick="importData()">導入數據</button>
