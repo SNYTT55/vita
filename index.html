@@ -540,7 +540,7 @@ select {
             <div class="input-row" style="margin-bottom: 20px;">
                 <div class="col-1">
                     <label>到期日期</label>
-                    <input type="text" id="upExp" value="${i.expDate || ''}" placeholder="YYYY/MM/DD">
+                    <input type="text" id="upExp" value="${i.expiry || ''}" placeholder="YYYY/MM/DD">
                 </div>
                 <div class="col-1">
                     <label>購買日期</label>
@@ -562,7 +562,7 @@ select {
         item.totalQty = parseInt(document.getElementById('upQty').value);
         item.freq = document.getElementById('upFreq').value;
         item.dose = document.getElementById('upDose').value;
-        item.expDate = document.getElementById('upExp').value; // 新增
+        item.expiry = document.getElementById('upExp').value; // 新增
         item.buyDate = document.getElementById('upBuy').value; // 新增
         item.updatedAt = new Date().toLocaleString();
         save(); 
