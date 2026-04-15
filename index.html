@@ -22,46 +22,50 @@
         
         
         .nav-tabs { 
-    display: flex; 
-    justify-content: space-around; /* 讓四個單字平均分配空間 */
-    background: #ffffff; 
-    border: 1px solid #eee; 
-    border-radius: 8px; 
-    padding: 10px 5px; /* 增加上下高度 */
-    margin: 15px; 
-}
+            display: flex; 
+            background: #ffffff; 
+            border: 1px solid #eee; 
+            border-radius: 8px; 
+            padding: 6px; 
+            margin: 15px;
+            /* 移除可能干擾的 padding 或寬度限制 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
 
-.tab-btn { 
-    flex: 1; 
-    text-align: center; 
-    font-size: 11px; /* 英文建議縮小一點點，更精緻 */
-    font-weight: 700; 
-    color: #ccc; 
-    background: transparent; 
-    border: none; 
-    text-transform: uppercase; 
-    letter-spacing: 1.5px; /* 增加字母間距，防止黏在一起 */
-    position: relative; 
-    cursor: pointer;
-    transition: color 0.3s;
-}
+        .tab-btn { 
+            flex: 1; /* 強制四個按鈕平分寬度 */
+            padding: 12px 0; 
+            text-align: center; 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: #ccc; 
+            background: transparent; 
+            border: none; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            position: relative; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-.tab-btn.active { 
-    color: var(--mj-accent); 
-}
+        .tab-btn.active { 
+            color: var(--mj-accent); 
+        }
 
-/* 修正底線，讓它更短、更精確地在單字下方 */
-.tab-btn.active::after {
-    content: "";
-    position: absolute;
-    bottom: -6px; /* 往下移一點，不要貼著文字 */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 10px; /* 固定寬度，不管單字長短，槓槓都一樣長 */
-    height: 3px;
-    background: var(--mj-accent);
-    border-radius: 4px;
-}
+        /* 修正底線：固定寬度、水平居中 */
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: 6px; /* 向上浮動一點點 */
+            left: 50%;
+            transform: translateX(-50%); /* 精準水平置中 */
+            width: 12px; 
+            height: 3px;
+            background: var(--mj-accent);
+            border-radius: 10px;
+        }
         
         .section-title { font-size: 14px; font-weight: 700; margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: "■"; font-size: 10px; color: var(--mj-accent); }
@@ -102,10 +106,10 @@
 <body>
 
 <div class="nav-tabs">
-    <button class="tab-btn active" onclick="showTab('ongoing')">Active</button>
-    <button class="tab-btn" onclick="showTab('inventory')">Stock</button>
-    <button class="tab-btn" onclick="showTab('plan')">Plan</button>
-    <button class="tab-btn" onclick="showTab('data')">Data</button>
+    <button class="tab-btn active" id="btn-home" onclick="switchTab('home')">Active</button>
+    <button class="tab-btn" id="btn-stock" onclick="switchTab('stock')">Stock</button>
+    <button class="tab-btn" id="btn-plan" onclick="switchTab('plan')">Plan</button>
+    <button class="tab-btn" id="btn-data" onclick="switchTab('data')">Data</button>
 </div>
 
 <div class="container">
