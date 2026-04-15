@@ -20,30 +20,47 @@
         * { box-sizing: border-box; font-family: -apple-system, "Noto Sans TC", sans-serif; }
         body { background-color: var(--mj-bg); color: var(--mj-text-main); margin: 0; padding: 0; line-height: 1.5; }
         
-        .nav-tabs { display: flex; background: #ffffff; border: 1px solid #e0e0e0; border-radius: var(--mj-radius); padding: 6px; margin: 15px 15px 25px; }
-        .tab-btn { 
-    text-transform: uppercase; /* 自動轉大寫 */
-    letter-spacing: 1px;      /* 字母間距拉開一點 */
-    font-size: 12px;           /* 英文可以比中文稍微縮小一號，反而更精緻 */
-    font-weight: 600;
+        
+        .nav-tabs { 
+    display: flex; 
+    justify-content: space-around; /* 讓四個單字平均分配空間 */
+    background: #ffffff; 
+    border: 1px solid #eee; 
+    border-radius: 8px; 
+    padding: 10px 5px; /* 增加上下高度 */
+    margin: 15px; 
 }
-        .tab-btn.active { 
-    background: transparent; /* 取消原本的灰色背景 */
-    color: var(--mj-accent); /* 文字轉紅 */
-    font-weight: 800;
-    border-bottom: 3px solid var(--mj-accent); /* 增加底線 */
-    border-radius: 0; /* 底線風格通常不建議圓角 */
+
+.tab-btn { 
+    flex: 1; 
+    text-align: center; 
+    font-size: 11px; /* 英文建議縮小一點點，更精緻 */
+    font-weight: 700; 
+    color: #ccc; 
+    background: transparent; 
+    border: none; 
+    text-transform: uppercase; 
+    letter-spacing: 1.5px; /* 增加字母間距，防止黏在一起 */
+    position: relative; 
+    cursor: pointer;
+    transition: color 0.3s;
 }
-        .tab-btn.active::after {
+
+.tab-btn.active { 
+    color: var(--mj-accent); 
+}
+
+/* 修正底線，讓它更短、更精確地在單字下方 */
+.tab-btn.active::after {
     content: "";
     position: absolute;
-    bottom: 4px;
+    bottom: -6px; /* 往下移一點，不要貼著文字 */
     left: 50%;
-    transform: translateX(-50%); /* 居中對齊 */
-    width: 12px;                  /* 固定短小的一條，很有細節感 */
-    height: 2px;
+    transform: translateX(-50%);
+    width: 10px; /* 固定寬度，不管單字長短，槓槓都一樣長 */
+    height: 3px;
     background: var(--mj-accent);
-    border-radius: 10px;
+    border-radius: 4px;
 }
         
         .section-title { font-size: 14px; font-weight: 700; margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 8px; }
@@ -84,12 +101,12 @@
 </head>
 <body>
 
-<nav class="nav-tabs">
-    <div class="tab-btn active" id="btn-home" onclick="switchTab('home')">MANAGE</div>
-    <div class="tab-btn" id="btn-stock" onclick="switchTab('stock')">STOCK</div>
-    <div class="tab-btn" id="btn-plan" onclick="switchTab('plan')">PURCHASE</div>
-    <div class="tab-btn" id="btn-data" onclick="switchTab('data')">DATA</div>
-</nav>
+<div class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('ongoing')">Active</button>
+    <button class="tab-btn" onclick="showTab('inventory')">Stock</button>
+    <button class="tab-btn" onclick="showTab('plan')">Plan</button>
+    <button class="tab-btn" onclick="showTab('data')">Data</button>
+</div>
 
 <div class="container">
     <div id="tab-home">
