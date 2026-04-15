@@ -440,16 +440,39 @@ select {
     function openEdit(id) {
         const i = db.find(x => x.id === id);
         document.getElementById('modalOverlay').style.display = 'flex';
+        
+        // 取得目前所有的小分類選項，方便在編輯時切換
+        let allSubs = [...new Set(db.map(item => item.subCat))].filter(s => s && s !== '未分類').sort();
+        const subOptions = allSubs.map(s => `<option value="${s}" ${i.subCat === s ? 'selected' : ''}>${s}</option>`).join('');
+
         document.getElementById('modalUI').innerHTML = `
             <div class="section-title">編輯項目</div>
             
             <div class="input-row">
                 <div class="col-2">
+                    <label>模式</label>
+                    <select id="upMainCat">
+                        <option value="基礎營養" ${i.mainCat==='基礎營養'?'selected':''}>基礎營養</option>
+                        <option value="生理期" ${i.mainCat==='生理期'?'selected':''}>生理期</option>
+                        <option value="補充品" ${i.mainCat==='補充品'?'selected':''}>補充品</option>
+                    </select>
+                </div>
+                <div class="col-1">
                     <label>狀態</label>
                     <select id="upStatus">
                         <option value="庫存" ${i.status==='庫存'?'selected':''}>STOCK</option>
                         <option value="服用中" ${i.status==='服用中'?'selected':''}>ACTIVE</option>
                         <option value="已吃完" ${i.status==='已吃完'?'selected':''}>FINISHED</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="input-row">
+                <div class="col-1">
+                    <label>分類</label>
+                    <select id="upSubCat">
+                        ${subOptions}
+                        <option value="未分類" ${i.subCat==='未分類'?'selected':''}>未分類</option>
                     </select>
                 </div>
                 <div class="col-1">
@@ -474,20 +497,22 @@ select {
             </div>
             
             <button class="btn-main" onclick="updateItem(${id})">SAVE CHANGES</button>
-            
             <button onclick="deleteItem(${id})" style="width:100%; margin-top:20px; background:none; border:none; color:var(--mj-accent); font-size:12px; text-decoration:underline; cursor:pointer">⚠️ DELETE RECORD</button>
         `;
     }
 
-    function updateItem(id) {
+function updateItem(id) {
         const i = db.find(x => x.id === id);
+        i.mainCat = document.getElementById('upMainCat').value;
+        i.subCat = document.getElementById('upSubCat').value;
         i.status = document.getElementById('upStatus').value;
         i.name = document.getElementById('upName').value;
         i.totalQty = parseInt(document.getElementById('upQty').value);
         i.freq = document.getElementById('upFreq').value;
         i.dose = document.getElementById('upDose').value;
         i.updatedAt = new Date().toLocaleString();
-        save(); closeModal();
+        save(); 
+        closeModal();
     }
 
     function quickOpen(id) { const i = db.find(x => x.id === id); i.status = '服用中'; i.updatedAt = new Date().toLocaleString(); save(); }
