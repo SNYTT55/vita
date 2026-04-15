@@ -25,36 +25,31 @@
             margin: 0; padding: 0;
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
         }
-        /* --- 分頁導航 --- */
+        
         .nav-tabs { display: flex; background: #ffffff; border: 1px solid #e0e0e0; border-radius: var(--mj-radius); padding: 6px; margin: 15px 15px 25px; }
         .tab-btn { flex: 1; padding: 12px 5px; text-align: center; font-size: 14px; font-weight: 500; color: #7f7f7f; border: none; background: transparent; cursor: pointer; border-radius: var(--mj-radius); }
         .tab-btn.active { background: #ebebeb; color: #333333; }
         
-        /* --- 通用標題 --- */
         .section-title { 
             font-size: 14px; font-weight: 700; margin-bottom: 20px; color: #333; 
             display: flex; align-items: center; gap: 8px;
         }
-        .section-title::before {
-            content: "■"; font-size: 10px; color: var(--mj-accent);
-        }
+        .section-title::before { content: "■"; font-size: 10px; color: var(--mj-accent); }
         
         .container { width: 100%; max-width: 480px; margin: 0 auto; padding: 15px 15px 100px; }
         
-        /* --- 卡片 --- */
         .card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 2px; padding: 24px; margin-bottom: 24px; box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.02); position: relative; }
         
-        /* 服用中與雷達：手帳感虛線 */
-        #ongoing-list .item-row, #plan-analysis .analysis-item, #deadline-result .analysis-item, #finished-list .item-row {
+        /* 統一項目樣式：虛線邊框 + 米色背景 + 陰影 */
+        #ongoing-list .item-row, #plan-analysis .analysis-item, #deadline-result .analysis-item, #finished-list .item-row, .smart-rec-box {
             background: var(--mj-card-bg); border: 1px dashed var(--mj-border); box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05); padding: 15px; margin-bottom: 12px;
         }
         
-        /* 核心紅框卡片 */
+        /* 紅框卡片調整：維持紅框但背景改為米色與陰影 */
         #tab-home .card:first-child, #tab-stock .card:first-child {
-            border: 1.5px solid var(--mj-accent) !important; background: #FFFDFB !important; box-shadow: 4px 4px 0px rgba(127, 0, 25, 0.05);
+            border: 1.5px solid var(--mj-accent) !important; background: var(--mj-card-bg) !important; box-shadow: 4px 4px 0px rgba(127, 0, 25, 0.08);
         }
         
-        /* --- 輸入框排版 --- */
         label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 5px; display: block; }
         input, select, textarea { width: 100%; padding: 10px; border-radius: 0; border: 1px solid #ddd; font-size: 14px; background: #fdfdfd; outline: none; }
         .input-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: flex-end; }
@@ -62,30 +57,33 @@
         .col-2 { flex: 2; }
         .col-3 { flex: 3; }
         
-        /* 分類選取器邏輯樣式 */
+        /* 分類選取器邏輯 */
         .select-wrapper { position: relative; width: 100%; height: 38px; }
-        .select-wrapper input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-color: #fff; pointer-events: none; }
+        .select-wrapper input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-color: #fff; }
         .select-wrapper select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 0; cursor: pointer; }
         
-        /* --- 列表項目樣式 --- */
+        /* 列表與分析項目樣式 */
         .item-row { display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
-        .item-header { display: flex; align-items: center; gap: 8px; }
+        .item-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .item-name { font-size: 15px; font-weight: 600; color: #333; }
-        .item-meta-row { font-size: 12px; color: #999; display: flex; justify-content: space-between; align-items: center; }
-        .item-sub-label { font-size: 11px; color: #888; background: #f5f5f5; padding: 2px 6px; border: 1px solid #ddd; border-radius: 2px; }
+        .item-meta-row { font-size: 12px; color: #999; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .item-sub-label { font-size: 11px; color: #888; background: #f5f5f5; padding: 2px 6px; border: 1px solid #ddd; border-radius: 2px; white-space: nowrap; }
 
-        /* 按鈕設計 */
+        /* 補貨雷達樣式修正 */
+        .analysis-item { overflow: hidden; }
+        .analysis-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .analysis-name { font-weight: bold; word-break: break-all; flex: 1; }
+        .analysis-gap { color: var(--mj-accent); font-weight: bold; white-space: nowrap; }
+
         .btn { border-radius: 2px; border: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-main { background: var(--mj-accent); color: white; padding: 15px; border: none; font-weight: 700; width: 100%; cursor: pointer; }
         .btn-sub { background: #fff; border: 1px solid #333; color: #333; padding: 10px; font-weight: 700; cursor: pointer; }
         
-        /* 狀態標籤 */
-        .status-pill { font-size: 11px; padding: 2px 8px; border: 1.5px solid; font-weight: 800; }
+        .status-pill { font-size: 11px; padding: 2px 8px; border: 1.5px solid; font-weight: 800; white-space: nowrap; }
         .s-服用中 { color: var(--mj-accent); border-color: var(--mj-accent); background: #fff; }
         .s-庫存 { color: #999; border-color: #ddd; background: #fff; }
         .s-已吃完 { background: #EEE; color: #BBB; text-decoration: line-through; border-color: #EEE; }
 
-        /* Modal */
         #modalOverlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display:none; justify-content:center; align-items:center; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; }
         .modal-content { background: #fff; padding: 30px; border-top: 8px solid #333; width: 90%; max-width: 400px; }
     </style>
@@ -141,11 +139,11 @@
             <div class="input-row">
                 <div class="col-1"><label>分類</label>
                     <div class="select-wrapper">
-                        <input type="text" id="subCat" placeholder="選取或輸入" readonly onclick="updateSubCatDatalist()">
+                        <input type="text" id="subCat" placeholder="選取或手寫" readonly onclick="focusSubPicker()">
                         <select id="subCatPicker" onchange="handleSubPicker(this)"></select>
                     </div>
                 </div>
-                <div class="col-1"><label>品名</label><input type="text" id="name"></div>
+                <div class="col-1"><label>品名</label><input type="text" id="name" placeholder="維他命C"></div>
             </div>
             <div class="input-row">
                 <div class="col-1"><label>單包顆數</label><input type="number" id="totalQty" value="60"></div>
@@ -187,7 +185,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="section-title">完食歷史紀錄</div>
+            <div class="section-title">歷史紀錄</div>
             <div id="finished-list" style="max-height:300px; overflow-y:auto;"></div>
             <button class="btn" style="color:var(--mj-accent); width:100%; font-size:12px; margin-top:15px; background:none; text-decoration: underline;" onclick="cleanFinished()">清空所有歷史紀錄</button>
         </div>
@@ -214,11 +212,17 @@
         renderAll();
     }
 
+    // 分類選取邏輯
+    function focusSubPicker() {
+        updateSubCatDatalist();
+        document.getElementById('subCatPicker').focus();
+    }
+
     function handleSubPicker(el) {
         const input = document.getElementById('subCat');
         if (el.value === 'CUSTOM') {
             input.value = ''; input.readOnly = false; input.focus();
-        } else {
+        } else if (el.value !== "") {
             input.value = el.value; input.readOnly = true;
         }
     }
@@ -227,7 +231,7 @@
         let allSubs = [...new Set(db.map(i => i.subCat))].filter(s => s && s !== '未分類');
         allSubs.sort();
         const picker = document.getElementById('subCatPicker');
-        picker.innerHTML = '<option value="">🔻選擇分類</option>' + allSubs.map(s => `<option value="${s}">${s}</option>`).join('') + '<option value="CUSTOM">📝新增分類...</option>';
+        picker.innerHTML = '<option value="">🔻選擇分類</option>' + allSubs.map(s => `<option value="${s}">${s}</option>`).join('') + '<option value="CUSTOM">📝手寫新分類...</option>';
     }
 
     function simulateInventory(itemList, targetDays = 2000) {
@@ -251,30 +255,31 @@
         return { days: daysPassed, gap: gapCount };
     }
 
-    function createItemElement(item) {
+    function createItemElement(item, isGrid = false) {
         if (item.status === '已吃完') {
             return `<div class="item-row" onclick="openEdit(${item.id})"><div class="item-header"><span class="status-pill s-已吃完">完食</span><span class="item-name">${item.name}</span></div><div class="item-meta-row" style="color:#BBB;">完食: ${item.updatedAt}</div></div>`;
         }
         let info = "";
         const diff = Math.ceil((new Date(item.expiry) - new Date()) / 86400000);
         if (item.mainCat === '補充品' || item.isRoutine === false) {
-            info = `<span>效期剩 ${diff} 天</span>`;
+            info = `效期剩 ${diff} 天`;
         } else {
             const sim = simulateInventory([item]);
             const days = (typeof sim === 'number') ? sim : sim.days;
             const finishDate = new Date(); finishDate.setDate(finishDate.getDate() + days);
-            info = `預計 <b>${finishDate.getMonth()+1}/${finishDate.getDate()}</b> 吃完`;
+            info = `預計 <b>${finishDate.getMonth()+1}/${finishDate.getDate()}</b> 完食`;
         }
-        return `<div class="item-row" onclick="openEdit(${item.id})"><div class="item-header"><span class="status-pill s-${item.status}">${item.status}</span><span class="item-sub-label">${item.subCat}</span><span class="item-name">${item.name}</span></div><div class="item-meta-row"><span>${item.totalQty} 顆 · ${info}</span><span style="font-size:10px;">EXP: ${item.expiry}</span></div></div>`;
+        return `<div class="item-row" onclick="openEdit(${item.id})"><div class="item-header"><span class="status-pill s-${item.status}">${item.status}</span><span class="item-sub-label">${item.subCat}</span><span class="item-name">${item.name}</span></div><div class="item-meta-row"><span>${item.totalQty} 顆 · ${info}</span><span style="font-size:10px; opacity:0.6;">EXP: ${item.expiry}</span></div></div>`;
     }
     
     function batchAdd() {
         const name = document.getElementById('name').value, exp = document.getElementById('expiry').value;
-        if(!name || exp.length < 10) return alert("請填寫完整資訊");
+        if(!name || exp.length < 10) return alert("請填寫正確名稱與日期");
         const count = parseInt(document.getElementById('packCount').value) || 1;
         const mode = document.getElementById('mainCat').value;
+        const sub = document.getElementById('subCat').value || '未分類';
         for(let n=0; n<count; n++) {
-            db.push({ id: Date.now() + n, mainCat: mode, subCat: document.getElementById('subCat').value || '未分類', name: name, totalQty: parseInt(document.getElementById('totalQty').value), buyDate: document.getElementById('buyDate').value, expiry: exp, freq: document.getElementById('baseFreq').value, dose: document.getElementById('baseDose').value, isRoutine: (mode !== '補充品'), status: '庫存', updatedAt: new Date().toLocaleString() });
+            db.push({ id: Date.now() + n, mainCat: mode, subCat: sub, name: name, totalQty: parseInt(document.getElementById('totalQty').value), buyDate: document.getElementById('buyDate').value, expiry: exp, freq: document.getElementById('baseFreq').value, dose: document.getElementById('baseDose').value, isRoutine: (mode !== '補充品'), status: '庫存', updatedAt: new Date().toLocaleString() });
         }
         save(); alert("入庫成功"); document.getElementById('name').value = '';
     }
@@ -293,25 +298,25 @@
     }
 
     function renderAll() {
-        document.getElementById('ongoing-list').innerHTML = db.filter(i => i.status === '服用中').map(i => createItemElement(i)).join('') || '<p style="text-align:center; color:#CCC;">目前無服用項目</p>';
-        document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').map(i => createItemElement(i)).join('') || '<p style="text-align:center; color:#CCC;">無庫存</p>';
-        document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map(i => createItemElement(i)).join('') || '<p style="text-align:center; color:#CCC;">無歷史</p>';
+        document.getElementById('ongoing-list').innerHTML = db.filter(i => i.status === '服用中').map(i => createItemElement(i)).join('') || '<p style="text-align:center; color:#CCC; font-size:12px; padding:20px;">目前無服用中的項目</p>';
+        document.getElementById('full-inventory').innerHTML = db.filter(i => i.status === '庫存').map(i => createItemElement(i)).join('') || '<p style="text-align:center; color:#CCC; font-size:12px; padding:20px;">尚無庫存備品</p>';
+        document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map(i => createItemElement(i)).join('') || '<p style="text-align:center; color:#CCC; font-size:12px; padding:20px;">無歷史紀錄</p>';
         document.getElementById('lastUpdateText').innerText = "最後更新於：" + (localStorage.getItem('vitaVault_lastUpdate') || "尚未同步");
-        updateDispOptions(); renderAnalysis(false);
+        updateSubCatDatalist(); updateDispOptions(); renderAnalysis(false);
     }
 
     function updateDispOptions() {
         const mode = document.getElementById('dispMain').value;
         let subs = [...new Set(db.filter(i => i.mainCat === mode && i.status === '庫存').map(i => i.subCat))];
-        document.getElementById('dispSub').innerHTML = subs.length ? subs.map(s => `<option value="${s}">${s}</option>`).join('') : '<option value="">無庫存</option>';
+        document.getElementById('dispSub').innerHTML = subs.length ? subs.map(s => `<option value="${s}">${s}</option>`).join('') : '<option value="">無備品</option>';
         renderDispRec();
     }
 
     function renderDispRec() {
         const mode = document.getElementById('dispMain').value, sub = document.getElementById('dispSub').value, res = document.getElementById('disp-result');
         const item = db.filter(i => i.mainCat === mode && i.subCat === sub && i.status === '庫存').sort((a, b) => new Date(a.expiry) - new Date(b.expiry))[0];
-        if(item) res.innerHTML = `<div style="margin-top:15px; border: 1px dashed var(--mj-accent); padding:15px; border-radius:2px;">${createItemElement(item)}<button class="btn btn-main" style="margin-top:10px" onclick="quickOpen(${item.id})">確認開啟本瓶</button></div>`;
-        else res.innerHTML = '<p style="text-align:center; font-size:0.8rem; color:#AAA;">無備品</p>';
+        if(item) res.innerHTML = `<div class="smart-rec-box">${createItemElement(item)}<button class="btn btn-main" style="margin-top:10px" onclick="quickOpen(${item.id})">確認開啟本瓶</button></div>`;
+        else res.innerHTML = '<p style="text-align:center; font-size:12px; color:#AAA; padding:10px;">該分類目前無備品</p>';
     }
 
     function renderAnalysis(isManual = false) {
@@ -322,14 +327,14 @@
         let out = "";
         for(let sub in subGroup) {
             const res = simulateInventory(subGroup[sub], targetDays);
-            if (res.gap > 0) out += `<div class="analysis-item" style="padding:12px 0; border-bottom:1px solid #EEE;"><div style="display:flex; justify-content:space-between;"><b>${sub}</b><span style="color:var(--mj-accent); font-weight:bold;">缺 ${Math.ceil(res.gap)} 顆</span></div><div style="font-size:11px; color:#999; margin-top:5px;">庫存可撐 ${simulateInventory(subGroup[sub])} 天</div></div>`;
+            if (res.gap > 0) out += `<div class="analysis-item"><div class="analysis-header"><span class="analysis-name">${sub}</span><span class="analysis-gap">缺 ${Math.ceil(res.gap)} 顆</span></div><div style="font-size:11px; color:#999; margin-top:5px;">當前庫存僅能支撐 ${simulateInventory(subGroup[sub])} 天</div></div>`;
         }
         document.getElementById(isManual ? 'deadline-result' : 'plan-analysis').innerHTML = out || `<div style="text-align:center; padding:20px; color:var(--mj-success)">✅ 庫存充足</div>`;
     }
 
     function quickOpen(id) { const i = db.find(x => x.id === id); i.status = '服用中'; i.updatedAt = new Date().toLocaleString(); save(); }
     function deleteItem(id) { if(confirm("確定刪除？")) { db = db.filter(x => x.id !== id); save(); closeModal(); } }
-    function cleanFinished() { if(confirm("確定清空所有歷史紀錄？這將無法復原。")) { db = db.filter(x => x.status !== '已吃完'); save(); } }
+    function cleanFinished() { if(confirm("確定清空歷史？")) { db = db.filter(x => x.status !== '已吃完'); save(); } }
     function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
     function switchTab(t) {
         ['home', 'stock', 'plan', 'data'].forEach(x => document.getElementById('tab-'+x).style.display = x===t?'block':'none');
@@ -337,7 +342,7 @@
         document.getElementById('btn-'+t).classList.add('active');
         renderAll();
     }
-    function exportAndCopy() { const box = document.getElementById('dataBox'); box.value = JSON.stringify(db); box.select(); navigator.clipboard.writeText(box.value).then(() => alert("已複製")); }
+    function exportAndCopy() { const box = document.getElementById('dataBox'); box.value = JSON.stringify(db); box.select(); navigator.clipboard.writeText(box.value).then(() => alert("數據已複製")); }
     function importData() { try { db = JSON.parse(document.getElementById('dataBox').value); save(); alert("導入成功"); } catch(e) { alert("格式錯誤"); } }
     window.onload = renderAll;
 </script>
