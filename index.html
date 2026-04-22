@@ -170,7 +170,7 @@
 <div class="nav-tabs">
     <button class="tab-btn active" id="btn-home" onclick="switchTab('home')">Active</button>
     <button class="tab-btn" id="btn-stock" onclick="switchTab('stock')">Stock</button>
-    <button class="tab-btn" id="btn-plan" onclick="switchTab('plan')">Plan</button>
+    <button class="tab-btn" id="btn-plan" onclick="switchTab('plan')">FORECAST</button>
     <button class="tab-btn" id="btn-data" onclick="switchTab('data')">Data</button>
 </div>
 
@@ -252,20 +252,37 @@
     
     <div id="tab-plan" style="display:none;">
         <div class="card">
-            <div class="section-title">日期斷貨預估</div>
+            <div class="section-title">採買決策雷達</div>
             <div class="input-row">
-                <div class="col-2">
-                    <input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD">
+                <div class="col-8">
+                    <input type="text" id="planSearchKey" placeholder="搜尋分類或品名關鍵字..." oninput="renderDecisionRadar()">
                 </div>
-                <div class="col-1">
-                    <button class="btn-main" onclick="renderAnalysis(true)">分析</button>
+                <div class="col-2">
+                    <button class="btn-main" style="background:#333" onclick="document.getElementById('planSearchKey').value=''; renderDecisionRadar();">CLEAR</button>
                 </div>
             </div>
-            <div id="deadline-result"></div>
+            <div id="decision-radar-result"></div>
         </div>
-        <div class="card">
-            <div class="section-title">90 天補貨雷達</div>
-            <div id="plan-analysis"></div>
+
+        <div style="text-align: center; margin-top: -10px;">
+            <button onclick="toggleAdvancedPlan()" style="background:none; border:none; color:#bbb; font-size:11px; text-decoration:underline; cursor:pointer;">
+                日期斷貨預估 
+            </button>
+        </div>
+
+        <div id="advanced-plan-zone" style="display:none; margin-top: 15px;">
+            <div class="card" style="border-style: dashed; background: #fafafa;">
+                <div class="section-title">日期斷貨預估</div>
+                <div class="input-row">
+                    <div class="col-7">
+                        <input type="text" class="date-input" id="checkDate" placeholder="YYYY/MM/DD">
+                    </div>
+                    <div class="col-3">
+                        <button class="btn-main" onclick="renderAnalysis(true)">分析日期</button>
+                    </div>
+                </div>
+                <div id="deadline-result"></div>
+            </div>
         </div>
     </div>
 
@@ -323,6 +340,11 @@
         }
     }
 
+    function toggleAdvancedPlan() {
+        const zone = document.getElementById('advanced-plan-zone');
+        zone.style.display = zone.style.display === 'none' ? 'block' : 'none';
+    }
+
     function handleSubPicker(el) {
         const input = document.getElementById('subCat');
         if (el.value === 'CUSTOM') { input.style.display = 'block'; input.value = ''; input.focus(); }
@@ -368,12 +390,10 @@
                 info = `預計 <b>${finishDate.getMonth()+1}/${finishDate.getDate()}</b> 完食`;
             }
         } else {
-            // 還原原本的「完食於」樣式
             info = `完食於: ${item.updatedAt ? item.updatedAt.split(' ')[0] : '---'}`;
         }
 
         if (isFinished) {
-            // 確保這段「已吃完」的 HTML 結構與你之前的一致
             return `
                 <div class="minimal-row" onclick="openEdit(${item.id})" style="padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; opacity: 0.6;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -386,7 +406,6 @@
                 </div>`;
         }
 
-        // 正常的服用中/庫存樣式
         return `
             <div class="minimal-row" onclick="openEdit(${item.id})" style="padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer;">
                 <div class="item-header" style="margin-bottom: 4px;">
@@ -401,38 +420,28 @@
             </div>`;
     }
 
-
     function renderAll() {
-        // 1. 服用中：非補充品按完食排序，補充品墊底
         const ongoing = db.filter(i => i.status === '服用中').sort((a, b) => {
-            // 如果其中一個是補充品，另一個不是，把補充品往後排
             if (a.mainCat === '補充品' && b.mainCat !== '補充品') return 1;
             if (a.mainCat !== '補充品' && b.mainCat === '補充品') return -1;
-            
-            // 如果都不是補充品，才按完食天數排序
             if (a.mainCat !== '補充品' && b.mainCat !== '補充品') {
                 const simA = simulateInventory([a]);
                 const simB = simulateInventory([b]);
-                const daysA = (typeof simA === 'number') ? simA : simA.days;
-                const daysB = (typeof simB === 'number') ? simB : simB.days;
-                return daysA - daysB;
+                return ((typeof simA === 'number') ? simA : simA.days) - ((typeof simB === 'number') ? simB : simB.days);
             }
-            
-            // 都是補充品的話，就保持原樣（不排序）
             return 0;
         });
         document.getElementById('ongoing-list').innerHTML = ongoing.map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">無服用中項目</p>';
 
-        // 2. 庫存：按到期日期排序
         const inventory = db.filter(i => i.status === '庫存').sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
         document.getElementById('full-inventory').innerHTML = inventory.map(i => createItemElement(i)).join('') || '<p style="text-align:center;color:#ccc;font-size:12px;padding:20px;">尚無庫存備品</p>';
 
-        // 3. 已吃完：按最後更新時間排序
         document.getElementById('finished-list').innerHTML = db.filter(i => i.status === '已吃完').sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map(i => createItemElement(i)).join('');
         
         const lastTime = localStorage.getItem('vitaVault_last_action');
         document.getElementById('last-action-stamp').innerText = `LAST RECORDED: ${lastTime || '尚無紀錄'}`;
-        updateDispOptions(); renderAnalysis(false);
+        updateDispOptions(); 
+        if(document.getElementById('tab-plan').style.display === 'block') renderDecisionRadar();
     }
 
     function updateDispOptions() {
@@ -450,6 +459,115 @@
         } else { res.innerHTML = '<p style="text-align:center;font-size:12px;color:#aaa;padding:10px;">該類別目前無庫存</p>'; }
     }
 
+function renderDecisionRadar() {
+    const key = document.getElementById('planSearchKey').value.trim().toLowerCase();
+    const resDiv = document.getElementById('decision-radar-result');
+    
+    if (!key) {
+        resDiv.innerHTML = '<p style="text-align:center;font-size:12px;color:#aaa;padding:10px;"> </p>';
+        return;
+    }
+
+    // 1. 篩選目前搜尋到的項目
+    const matched = db.filter(i => 
+        (i.name.toLowerCase().includes(key) || i.subCat.toLowerCase().includes(key)) && 
+        i.status !== '已吃完'
+    );
+
+    if (matched.length === 0) {
+        resDiv.innerHTML = `<div style="text-align:center; padding:15px; border:1px dashed #ddd; margin-top:10px;"><div style="color:var(--mj-accent); font-weight:700; font-size:14px;">查無相關庫存</div></div>`;
+        return;
+    }
+
+    // 2. 暴力計算：直接模擬消耗
+    let tempItems = matched.map(i => ({...i})).sort((a,b) => new Date(a.expiry) - new Date(b.expiry));
+    let days = 0;
+    let totalQty = 0;
+    
+    // 計算總顆數
+    matched.forEach(i => totalQty += (parseInt(i.totalQty) || 0));
+
+    // 模擬 730 天 (兩年) 內的消耗
+    let testDate = new Date();
+    testDate.setHours(0,0,0,0);
+
+    for (let d = 0; d < 730; d++) {
+        // 找到效期最接近且還有剩的
+        let active = tempItems.find(i => i.totalQty > 0);
+        if (!active) break; // 吃完了就跳出
+
+        // 判斷是否要吃 (生理期模式判斷)
+        let shouldEat = true;
+        if (active.mainCat === '生理期') {
+            const day = testDate.getDate();
+            shouldEat = (day >= 1 && day <= 7);
+        }
+
+        if (shouldEat) {
+            const dailyRate = (parseFloat(active.freq) || 1) * (parseFloat(active.dose) || 1);
+            active.totalQty -= dailyRate;
+        }
+
+        days++;
+        testDate.setDate(testDate.getDate() + 1);
+    }
+
+    
+    // 3. 判定邏輯
+    let dec = { text: "無需購買", color: "#838e7d" };
+    if (days < 180) dec = { text: "建議購入", color: "#7f0019" };
+    else if (days < 210) dec = { text: "考慮採購", color: "#d1c7b7" };
+
+    let deadlineDate = new Date();
+    deadlineDate.setDate(deadlineDate.getDate() + days);
+    const dateString = `${deadlineDate.getFullYear()}/${deadlineDate.getMonth() + 1}/${deadlineDate.getDate()}`;
+
+
+    // 4. 渲染結果
+    resDiv.innerHTML = `
+        <div style="background:${dec.color}; color:white; padding:15px; border-radius:2px; text-align:center; margin-top:10px;">
+            <div style="font-size:20px; font-weight:700;">${dec.text}</div>
+        </div>
+        
+        <div style="margin-top:15px; padding:12px; background:#f9f9f9; border:1px solid #eee; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; text-align:center;">
+            <div>
+                <div style="font-size:9px; color:#999; text-transform:uppercase;">Inventory</div>
+                <div style="font-size:14px; font-weight:700;">${totalQty} <small>顆</small></div>
+            </div>
+            <div style="border-left: 1px solid #eee; border-right: 1px solid #eee;">
+                <div style="font-size:9px; color:#999; text-transform:uppercase;">Duration</div>
+                <div style="font-size:14px; font-weight:700;">${Math.round(days / 30 * 10) / 10} <small>月</small></div>
+            </div>
+            <div>
+                <div style="font-size:9px; color:#999; text-transform:uppercase;">Deadline EST.</div>
+                <div style="font-size:14px; font-weight:700; color:var(--mj-accent);">${dateString}</div>
+            </div>
+        </div>
+
+        <div style="margin-top:12px; border-top: 1px solid rgba(0,0,0,0.05);">
+            ${matched
+                .sort((a, b) => {
+                    // 排序邏輯：服用中 (status === '服用中') 放在最前面
+                    if (a.status === '服用中' && b.status !== '服用中') return -1;
+                    if (a.status !== '服用中' && b.status === '服用中') return 1;
+                    return 0;
+                })
+                .map(i => `
+                <div onclick="openEdit(${i.id})" style="padding:12px 0; border-bottom:1px dashed #eee; font-size:13px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                    <span style="color:#555;">
+                        <span style="color:${i.status === '服用中' ? 'var(--mj-accent)' : '#ccc'}; margin-right:4px;">
+                            ${i.status === '服用中' ? '●' : '○'}
+                        </span> 
+                        ${i.name}
+                    </span>
+                    <span style="font-weight:600; color:#333;">
+                        ${i.totalQty} <small style="font-size:10px; font-weight:400;">顆</small> 
+                    </span>
+                </div>
+            `).join('')}
+        </div>`;
+}
+
     function renderAnalysis(isManual) {
         const targetDays = isManual ? Math.ceil((new Date(document.getElementById('checkDate').value) - new Date()) / 86400000) : 90;
         if (isNaN(targetDays) && isManual) return;
@@ -457,9 +575,9 @@
         let out = "";
         for(let sub in subGroup) {
             const res = simulateInventory(subGroup[sub], targetDays);
-            if (res.gap > 0) out += `<div style="padding:15px 0; border-bottom:1px solid #EEE; display:flex; justify-content:space-between; align-items:center;"><div><b>${sub}</b><br><small style="color:#999;">目前支撐 ${simulateInventory(subGroup[sub])} 天</small></div><b style="color:var(--mj-accent);">缺 ${Math.ceil(res.gap)} 顆</b></div>`;
+            if (res.gap > 0) out += `<div style="padding:12px 0; border-bottom:1px solid #EEE; display:flex; justify-content:space-between; align-items:center;"><div><b>${sub}</b><br><small style="color:#999;">目前支撐 ${simulateInventory(subGroup[sub])} 天</small></div><b style="color:var(--mj-accent);">缺 ${Math.ceil(res.gap)} 顆</b></div>`;
         }
-        document.getElementById(isManual ? 'deadline-result' : 'plan-analysis').innerHTML = out || '<div style="text-align:center;padding:20px;color:#a4b09c">✅ 庫存充足</div>';
+        document.getElementById(isManual ? 'deadline-result' : 'deadline-result').innerHTML = out || '<div style="text-align:center;padding:20px;color:#a4b09c">✅ 庫存充足</div>';
     }
 
     function batchAdd() {
@@ -492,8 +610,8 @@
                 <div class="col-1"><label>回顆數</label><input type="number" id="upDose" value="${i.dose}"></div>
             </div>
             <div class="input-row" style="margin-bottom:20px;">
-                <div class="col-1"><label>到期日期</label><input type="text" id="upExp" value="${i.expiry || ''}" placeholder="YYYY/MM/DD"></div>
-                <div class="col-1"><label>購買日期</label><input type="text" id="upBuy" value="${i.buyDate || ''}" placeholder="YYYY/MM/DD"></div>
+                <div class="col-1"><label>到期日期</label><input type="text" id="upExp" value="${i.expiry || ''}" placeholder="YYYY/MM/DD" class="date-input"></div>
+                <div class="col-1"><label>購買日期</label><input type="text" id="upBuy" value="${i.buyDate || ''}" placeholder="YYYY/MM/DD" class="date-input"></div>
             </div>
             <button class="btn-main" onclick="updateItem(${id})">SAVE CHANGES</button>
             <button onclick="deleteItem(${id})" style="width:100%; margin-top:20px; background:none; border:none; color:var(--mj-accent); font-size:12px; text-decoration:underline; cursor:pointer">⚠️ DELETE RECORD</button>`;
@@ -519,8 +637,35 @@
         if (t === 'stock' || t === 'home') updateSubCatDatalist();
         renderAll();
     }
-    function exportAndCopy() { const box = document.getElementById('dataBox'); box.value = JSON.stringify(db); box.select(); navigator.clipboard.writeText(box.value); alert("數據已複製"); }
-    function importData() { try { db = JSON.parse(document.getElementById('dataBox').value); save(); alert("導入成功"); } catch(e) { alert("格式錯誤"); } }
+
+    // 修正後的導出功能
+    function exportAndCopy() {
+        const box = document.getElementById('dataBox');
+        if (db.length === 0) return alert("目前無數據");
+        const dataString = JSON.stringify(db);
+        box.value = dataString;
+        box.select();
+        box.setSelectionRange(0, 99999);
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(dataString).then(() => alert("數據已複製")).catch(() => fallbackCopy(box));
+            } else { fallbackCopy(box); }
+        } catch (err) { alert("請手動全選複製框內內容"); }
+    }
+    function fallbackCopy(textarea) {
+        const successful = document.execCommand('copy');
+        alert(successful ? "數據已複製 (備援模式)" : "自動複製失敗，請手動複製");
+    }
+
+    function importData() {
+        if (!confirm("導入將會覆蓋目前數據，確定繼續？")) return;
+        try {
+            const parsed = JSON.parse(document.getElementById('dataBox').value);
+            if (!Array.isArray(parsed)) throw new Error();
+            db = parsed; save(); alert("導入成功"); switchTab('home');
+        } catch(e) { alert("導入失敗：格式不正確"); }
+    }
+
     window.onload = renderAll;
 </script>
 </body>
