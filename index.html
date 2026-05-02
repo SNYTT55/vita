@@ -312,20 +312,11 @@
 
 <script>
     let db = JSON.parse(localStorage.getItem('vitaVault_db') || '[]');
-
-    // 自動斜線日期輸入
-    // 1. 你原本的格式化邏輯 (保留，負責自動加斜線)
+    
     document.addEventListener('input', e => {
         if (e.target.classList.contains('date-input')) {
+            // 1. 格式化邏輯 (你原本的部分)
             let val = e.target.value.replace(/\D/g, '').substring(0, 8);
-            
-            // 額外檢查：防止月份大於 12
-            if (val.length >= 6) {
-                let month = parseInt(val.substring(4, 6));
-                if (month > 12) val = val.substring(0, 4) + '12' + val.substring(6);
-                if (month === 0 && val.length === 6) val = val.substring(0, 4) + '01'; 
-            }
-    
             if (val.length > 4 && val.length <= 6) {
                 val = val.substring(0, 4) + '/' + val.substring(4);
             } else if (val.length > 6) {
@@ -335,27 +326,29 @@
         }
     });
     
-    // 2. 新增：邏輯驗證 (負責擋下 2/30 這種不存在的日期)
+    // 2. 邏輯校驗 (建議用 blur，因為 change 在某些手機瀏覽器行為不一)
     document.addEventListener('blur', e => {
         if (e.target.classList.contains('date-input')) {
             const val = e.target.value;
+            
+            // 只有長度達到 10 才檢查，避免輸入到一半就報錯
             if (val.length === 10) {
-                const [y, m, d] = val.split('/').map(n => parseInt(n, 10));
-                const date = new Date(y, m - 1, d);
+                const parts = val.split('/');
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                const date = new Date(y, m, d);
     
-                // 檢查 JS 轉換後日期是否「跑掉」了
-                if (date.getFullYear() !== y || (date.getMonth() + 1) !== m || date.getDate() !== d) {
-                    alert(`日期無效：${val}\n請檢查該月是否有這一天。`);
-                    e.target.value = ""; // 清空無效輸入
-                    setTimeout(() => e.target.focus(), 10); // 自動抓回焦點
+                if (date.getFullYear() !== y || date.getMonth() !== m || date.getDate() !== d) {
+                    alert(`⚠️ 日期無效：${val}\n請確認該月是否有這一天（例如 2/30）。`);
+                    e.target.value = ''; // 或是 e.target.focus() 讓使用者重填
                 }
-            } else if (val.length > 0 && val.length < 10) {
-                // 處理沒輸入完的情況
-                alert("日期格式不完整，請輸入 YYYY/MM/DD");
-                e.target.focus();
+            } else if (val.length > 0) {
+                // 如果輸入了一半就離開，也給個小提醒
+                alert("請輸入完整日期格式：YYYY/MM/DD");
             }
         }
-    }, true); // 使用 capture 模式確保能監聽到 blur
+    }, true); // 使用 capture 確保能抓到所有 date-input 的 blur
 
     function save() { 
         const lastAction = new Date().toLocaleString();
