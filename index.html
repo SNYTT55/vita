@@ -121,6 +121,14 @@
 </head>
 <body>
 
+    <!-- 頂部標題與同步狀態 (已補回 id="sync-status") -->
+    <div class="container" style="padding-bottom: 0px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <h1 style="font-size: 16px; font-weight: 700; color: var(--mj-accent);">VitaVault</h1>
+            <div id="sync-status" class="sync-badge">載入中...</div>
+        </div>
+    </div>
+
     <!-- 導覽列 -->
     <div class="nav-tabs">
         <button class="tab-btn active" onclick="switchTab('search')">REVIEW</button>
@@ -189,7 +197,6 @@
     </div>
 
 <script>
-    // ⚠️ 請將這裡替換成你的 Google Apps Script 網頁應用程式 URL
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzigKGw53Wc9_S_z2la8bf8VZzpqGjtWnm9SaOnqtkrwsf_WDkwDioLJIe11LXVG3F7ug/exec";
     
     let db = [];
@@ -322,14 +329,12 @@
         const sixMonthsLater = new Date();
         sixMonthsLater.setMonth(now.getMonth() + 6);
 
-        // 篩選出效期在半年內，或是庫存狀態的品項作為採買提醒
         const replenishItems = db.filter(i => {
             if (!i.expiry) return false;
             const expiryDate = new Date(i.expiry);
             return expiryDate >= now && expiryDate <= sixMonthsLater;
         });
 
-        // 依效期近到遠排序
         replenishItems.sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
 
         if (replenishItems.length === 0) {
