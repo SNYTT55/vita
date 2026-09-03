@@ -139,7 +139,7 @@
     <div class="container">
         <!-- 標籤頁 1 (預設)：總覽與搜尋編輯區 -->
         <div id="tab-search" class="tab-content">
-            <!-- 半年不足需補貨清單專區 (移到 REVIEW 分頁最上方) -->
+            <!-- 半年不足需補貨清單專區 -->
             <div class="card" style="border: 1.5px solid #c62828; background: #fffdfd;">
                 <div class="section-title" style="margin-bottom: 12px;">
                     <span class="section-title-text" style="color: #c62828;">半年需求缺口</span>
@@ -166,22 +166,33 @@
                     <span class="section-title-text">開瓶推薦與庫存檢視</span>
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label>搜尋品項或分類（檢視 Top 3 與對應庫存）</label>
-                    <input type="text" id="home-search-keyword" placeholder="輸入代號、名稱或分類..." oninput="renderHomeSection()">
+                <!-- 分類下拉選單區 -->
+                <div class="input-row" style="margin-bottom: 15px;">
+                    <div class="col-1">
+                        <label>主分類 (Main Cat)</label>
+                        <select id="home-main-cat" onchange="onMainCatChange()">
+                            <option value="">全部主分類</option>
+                        </select>
+                    </div>
+                    <div class="col-1">
+                        <label>子分類 (Sub Cat)</label>
+                        <select id="home-sub-cat" onchange="renderHomeSection()">
+                            <option value="">全部子分類</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Top 3 推薦區 -->
                 <div style="font-size: 12px; font-weight: 700; color: var(--mj-accent); margin-bottom: 10px; margin-top: 20px;">
                     ■ Top 3 優先開瓶建議
                 </div>
-                <div id="home-top3-list">請先於上方輸入關鍵字以檢視推薦...</div>
+                <div id="home-top3-list">請先選擇主分類或子分類以檢視推薦...</div>
 
                 <!-- 對應分類庫存清單 -->
                 <div style="font-size: 12px; font-weight: 700; color: var(--mj-accent); margin-bottom: 10px; margin-top: 25px;">
                     ■ 對應庫存品項清單
                 </div>
-                <div id="home-filtered-stock-list">請先於上方輸入關鍵字以檢視庫存...</div>
+                <div id="home-filtered-stock-list">請先選擇主分類或子分類以檢視庫存...</div>
             </div>
         </div>
 
@@ -201,6 +212,16 @@
     
     let db = [];
 
+    // 格式化日期安全轉為 YYYY-MM-DD
+    function formatDateStr(dateStr) {
+        if (!dateStr) return '';
+        const str = String(dateStr);
+        if (str.length >= 10 && str.includes('-')) {
+            return str.substring(0, 10);
+        }
+        return str;
+    }
+
     // 初始化與雲端同步
     async function initCloudSync() {
         document.getElementById('sync-status').innerText = "同步中...";
@@ -218,12 +239,49 @@
             console.log("雲端連線失敗，載入本機快取");
             loadLocal();
         }
+        initCategoryDropdowns();
         renderAll();
     }
 
     function loadLocal() {
         db = JSON.parse(localStorage.getItem('vitaVault_db') || '[]');
         document.getElementById('sync-status').innerText = "本機快取";
+    }
+
+    // 初始化主分類選單
+    function initCategoryDropdowns() {
+        const mainCatSelect = document.getElementById('home-main-cat');
+        if (!mainCatSelect) return;
+
+        const mainCats = [...new Set(db.map(i => i.mainCat).filter(Boolean))];
+        mainCatSelect.innerHTML = '<option value="">請選擇主分類...</option>' + 
+            mainCats.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        
+        // 初始化時不自動觸發全選，讓子分類也保持初始未選狀態
+        const subCatSelect = document.getElementById('home-sub-cat');
+        if (subCatSelect) {
+            subCatSelect.innerHTML = '<option value="">請先選擇主分類...</option>';
+        }
+    }
+
+    // 當主分類改變時，連動更新子分類選單
+    function onMainCatChange() {
+        const selectedMain = document.getElementById('home-main-cat').value;
+        const subCatSelect = document.getElementById('home-sub-cat');
+        
+        if (!selectedMain) {
+            subCatSelect.innerHTML = '<option value="">請先選擇主分類...</option>';
+            renderHomeSection();
+            return;
+        }
+
+        let availableItems = db.filter(i => i.status !== '已完成' && i.mainCat === selectedMain);
+        const subCats = [...new Set(availableItems.map(i => i.subCat).filter(Boolean))];
+        
+        subCatSelect.innerHTML = '<option value="">全部子分類</option>' + 
+            subCats.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+        renderHomeSection();
     }
 
     // 切換分頁
@@ -308,6 +366,7 @@
     // 儲存並同步至 GAS 試算表
     async function saveAndSync(msg) {
         localStorage.setItem('vitaVault_db', JSON.stringify(db));
+        initCategoryDropdowns();
         renderAll();
         if (msg) alert(msg);
 
@@ -343,6 +402,7 @@
         item.name = document.getElementById(`edit-name-${code}`).value;
         item.status = document.getElementById(`edit-status-${code}`).value;
         item.totalQty = document.getElementById(`edit-qty-${code}`).value;
+        item.expiry = document.getElementById(`edit-expiry-${code}`).value;
         item.needHalfYear = document.getElementById(`edit-need-${code}`).value;
         item.updatedAt = new Date().toLocaleString();
 
@@ -361,25 +421,35 @@
         renderActiveList();
     }
 
-    // 智慧推薦區（排除已完成）
+    // 智慧推薦區（未選分類時保持空白，清單與 Top3 依到期日由近至遠排序）
     function renderHomeSection() {
-        const keywordInput = document.getElementById('home-search-keyword');
-        const keyword = keywordInput ? keywordInput.value.trim().toLowerCase() : '';
+        const mainCat = document.getElementById('home-main-cat').value;
+        const subCat = document.getElementById('home-sub-cat').value;
         const top3Container = document.getElementById('home-top3-list');
         const filteredStockContainer = document.getElementById('home-filtered-stock-list');
 
-        if (keyword === '') {
-            top3Container.innerHTML = '<p style="text-align:center; color:#999; font-size:12px; padding:10px;">請先於上方輸入關鍵字以檢視推薦...</p>';
-            filteredStockContainer.innerHTML = '<p style="text-align:center; color:#999; font-size:12px; padding:10px;">請先於上方輸入關鍵字以檢視庫存...</p>';
+        // 如果主分類完全沒選，則保持空白提示
+        if (!mainCat) {
+            top3Container.innerHTML = '<p style="text-align:center; color:#999; font-size:12px; padding:10px;">請先選擇主分類或子分類以檢視推薦...</p>';
+            filteredStockContainer.innerHTML = '<p style="text-align:center; color:#999; font-size:12px; padding:10px;">請先選擇主分類或子分類以檢視庫存...</p>';
             return;
         }
 
-        let stockItems = db.filter(i => i.status === '庫存').filter(i => 
-            String(i.code).toLowerCase().includes(keyword) ||
-            String(i.name).toLowerCase().includes(keyword) ||
-            String(i.subCat).toLowerCase().includes(keyword) ||
-            String(i.mainCat).toLowerCase().includes(keyword)
-        );
+        let stockItems = db.filter(i => i.status === '庫存');
+        
+        if (mainCat) {
+            stockItems = stockItems.filter(i => i.mainCat === mainCat);
+        }
+        if (subCat) {
+            stockItems = stockItems.filter(i => i.subCat === subCat);
+        }
+
+        // 共通排序邏輯：按照到期日期由近至遠 (若無到期日則排在後面)
+        stockItems.sort((a, b) => {
+            if (!a.expiry) return 1;
+            if (!b.expiry) return -1;
+            return new Date(a.expiry) - new Date(b.expiry);
+        });
 
         const top3Items = stockItems.slice(0, 3);
         if (top3Items.length === 0) {
@@ -393,7 +463,7 @@
                         <div class="item-name">${i.name}</div>
                     </div>
                     <div class="item-meta-row">
-                        <span>數量: ${i.totalQty || '-'}</span>
+                        <span>數量: ${i.totalQty || '-'} | 到期: ${formatDateStr(i.expiry) || '未記錄'}</span>
                         <button class="btn-main" style="width: auto; padding: 6px 12px; font-size: 11px;" onclick="smartOpen('${i.code}')">一鍵開瓶</button>
                     </div>
                 </div>
@@ -411,7 +481,7 @@
                         <div class="item-name">${i.name}</div>
                     </div>
                     <div class="item-meta-row">
-                        <span>數量: ${i.totalQty || '-'}</span>
+                        <span>數量: ${i.totalQty || '-'} | 到期: ${formatDateStr(i.expiry) || '未記錄'}</span>
                         <button class="btn-main" style="width: auto; padding: 6px 12px; font-size: 11px;" onclick="smartOpen('${i.code}')">開瓶使用</button>
                     </div>
                 </div>
@@ -419,7 +489,7 @@
         }
     }
 
-    // 服用中清單渲染
+    // 服用中清單渲染（依開始服用日期排序）
     function renderActiveList() {
         const container = document.getElementById('active-list');
         const activeItems = db.filter(i => i.status === '服用中');
@@ -437,29 +507,39 @@
                     <div class="item-name">${i.name}</div>
                 </div>
                 <div class="item-meta-row" style="margin-top: 10px;">
-                    <span>開始服用: ${i.startDate ? i.startDate.split('T')[0] : '未記錄'}</span>
-                    <span style="font-size:11px; color:#888;">數量: ${i.totalQty || '-'}</span>
+                    <span>開始服用: ${formatDateStr(i.startDate) || '未記錄'}</span>
+                    <span style="font-size:11px; color:#888;">數量: ${i.totalQty || '-'} | 到期: ${formatDateStr(i.expiry) || '未記錄'}</span>
                 </div>
             </div>
         `).join('');
     }
 
-    // 總覽與搜尋編輯列表渲染（自動過濾掉「已完成」的品項）
+    // 總覽與搜尋編輯列表渲染（未輸入關鍵字時保持空白，搜尋結果依到期日由近至遠排序）
     function renderSearchList() {
         const keywordInput = document.getElementById('search-keyword');
         const keyword = keywordInput ? keywordInput.value.trim().toLowerCase() : '';
         const container = document.getElementById('search-result-list');
         
-        let filtered = db.filter(i => i.status !== '已完成');
-        if (keyword !== '') {
-            filtered = filtered.filter(i => 
-                String(i.code).toLowerCase().includes(keyword) ||
-                String(i.name).toLowerCase().includes(keyword) ||
-                String(i.subCat).toLowerCase().includes(keyword) ||
-                String(i.mainCat).toLowerCase().includes(keyword) ||
-                String(i.status).toLowerCase().includes(keyword)
-            );
+        // 若關鍵字為空，不顯示清單並提示輸入
+        if (keyword === '') {
+            container.innerHTML = '<p style="text-align:center; color:#999; font-size:12px; padding:20px;">請輸入關鍵字以檢視與搜尋品項...</p>';
+            return;
         }
+
+        let filtered = db.filter(i => i.status !== '已完成').filter(i => 
+            String(i.code).toLowerCase().includes(keyword) ||
+            String(i.name).toLowerCase().includes(keyword) ||
+            String(i.subCat).toLowerCase().includes(keyword) ||
+            String(i.mainCat).toLowerCase().includes(keyword) ||
+            String(i.status).toLowerCase().includes(keyword)
+        );
+
+        // 搜尋結果也依到期日由近至遠排序
+        filtered.sort((a, b) => {
+            if (!a.expiry) return 1;
+            if (!b.expiry) return -1;
+            return new Date(a.expiry) - new Date(b.expiry);
+        });
 
         if (filtered.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:#999; font-size:12px; padding:20px;">找不到符合的有效品項</p>';
@@ -468,6 +548,7 @@
 
         container.innerHTML = filtered.map(i => {
             const statusClass = i.status === '服用中' ? 's-服用中' : 's-庫存';
+            const expiry = formatDateStr(i.expiry);
             return `
                 <div class="handdrawn-item">
                     <div class="item-header">
@@ -476,7 +557,7 @@
                         <div class="item-name">${i.name}</div>
                     </div>
                     <div class="item-meta-row" style="margin-top: 8px;">
-                        <span>數量: ${i.totalQty || '-'} | 半年預需: ${i.needHalfYear || 1}</span>
+                        <span>數量: ${i.totalQty || '-'} | 到期: ${expiry || '未記錄'} </span>
                         <button class="btn-outline" style="padding: 4px 10px; font-size: 10px;" onclick="toggleEditBox('${i.code}')">編輯</button>
                     </div>
 
@@ -492,7 +573,7 @@
                                 <select id="edit-status-${i.code}">
                                     <option value="庫存" ${i.status==='庫存'?'selected':''}>庫存</option>
                                     <option value="服用中" ${i.status==='服用中'?'selected':''}>服用中</option>
-                                    <option value="已完成" ${i.status==='已完成'?'selected':''}>已完成（選此項將從清單隱藏）</option>
+                                    <option value="已完成" ${i.status==='已完成'?'selected':''}>已完成</option>
                                 </select>
                             </div>
                             <div class="col-1">
@@ -500,11 +581,17 @@
                                 <input type="text" id="edit-qty-${i.code}" value="${i.totalQty || ''}">
                             </div>
                         </div>
-                        <div style="margin-bottom: 10px;">
-                            <label>半年預需量（預估半年會消耗幾盒/包）：</label>
-                            <input type="number" id="edit-need-${i.code}" value="${i.needHalfYear || 1}">
+                        <div class="input-row">
+                            <div class="col-1">
+                                <label>到期日期：</label>
+                                <input type="date" id="edit-expiry-${i.code}" value="${expiry}">
+                            </div>
+                            <div class="col-1">
+                                <label>半年預需量：</label>
+                                <input type="number" id="edit-need-${i.code}" value="${i.needHalfYear || 1}">
+                            </div>
                         </div>
-                        <div style="text-align: right;">
+                        <div style="text-align: right; margin-top: 10px;">
                             <button class="btn-main" style="width: auto; padding: 8px 16px; font-size: 11px;" onclick="saveItemEdit('${i.code}')">儲存變更</button>
                         </div>
                     </div>
